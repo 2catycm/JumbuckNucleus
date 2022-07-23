@@ -46,7 +46,7 @@ trait FrameAllocator {
 pub struct StackFrameAllocator {
     current: usize,
     end: usize,
-    recycled: Vec<usize>,
+    recycled: Vec<usize>, //存的是physical page number。 Vec是作为一个自动扩容栈来使用的。
 }
 
 impl StackFrameAllocator {
