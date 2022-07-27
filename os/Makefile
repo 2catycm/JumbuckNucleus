@@ -8,7 +8,8 @@ DISASM_TMP := target/$(TARGET)/$(MODE)/asm
 # BOARD
 BOARD ?= qemu
 SBI ?= rustsbi
-BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
+#BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
+BOOTLOADER := default
 K210_BOOTLOADER_SIZE := 131072
 
 # Building mode argument

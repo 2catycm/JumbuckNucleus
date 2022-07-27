@@ -380,14 +380,14 @@ bitflags! {
 
 #[allow(unused)]
 pub fn vector_too_big_test(){
-    let mut t = Vec::new();
-    for i in 0..20_000_000 {
-        t.push(0);
-        if i % 500 == 0 {
-            let p = (&t[i]) as *const i32 as usize;
-            println!("t[{}]'s address is {:x}", i, p);
-        }
-    }
+    // let mut t = Vec::new();
+    // for i in 0..20_000_000 {
+    //     t.push(0);
+    //     if i % 500 == 0 {
+    //         let p = (&t[i]) as *const i32 as usize;
+    //         println!("t[{}]'s address is {:x}", i, p);
+    //     }
+    // }
 }
 #[allow(unused)]
 ///Check PageTable running correctly
