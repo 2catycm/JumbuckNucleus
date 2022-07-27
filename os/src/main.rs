@@ -71,7 +71,8 @@ pub fn rust_main() -> ! {
     clear_bss();
     println!("[kernel] Hello, world!");
     mm::init();
-     mm::remap_test();
+
+    mm::remap_test();
     task::add_initproc();
     println!("after initproc!");
     trap::init();

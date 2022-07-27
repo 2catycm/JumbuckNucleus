@@ -379,8 +379,20 @@ bitflags! {
 }
 
 #[allow(unused)]
+pub fn vector_too_big_test(){
+    let mut t = Vec::new();
+    for i in 0..20_000_000 {
+        t.push(0);
+        if i % 500 == 0 {
+            let p = (&t[i]) as *const i32 as usize;
+            println!("t[{}]'s address is {:x}", i, p);
+        }
+    }
+}
+#[allow(unused)]
 ///Check PageTable running correctly
 pub fn remap_test() {
+    vector_too_big_test();
     let mut kernel_space = KERNEL_SPACE.exclusive_access();
     let mid_text: VirtAddr = ((stext as usize + etext as usize) / 2).into();
     let mid_rodata: VirtAddr = ((srodata as usize + erodata as usize) / 2).into();

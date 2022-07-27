@@ -65,13 +65,13 @@ impl FrameAllocator for StackFrameAllocator {
         }
     }
     fn alloc(&mut self) -> Option<PhysPageNum> {
-        if let Some(ppn) = self.recycled.pop() {
-            Some(ppn.into())
+        if let Some(ppn) = self.recycled.pop() {   //如果最后一个元素可以解包
+            Some(ppn.into()) //返回最后一个页。
         } else if self.current == self.end {
-            None
+            None //已经非法
         } else {
             self.current += 1;
-            Some((self.current - 1).into())
+            Some((self.current - 1).into())     //向量为空。 此时需要搞个新的页号送给他。
         }
     }
     fn dealloc(&mut self, ppn: PhysPageNum) {
