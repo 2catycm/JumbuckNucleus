@@ -158,7 +158,7 @@ impl VirtPageNum {
         let mut vpn = self.0;
         let mut idx = [0usize; 3];
         for i in (0..3).rev() {
-            idx[i] = vpn & 511;
+            idx[i] = vpn & 511; //注意这里的魔法数字！如果是16KiB OS，可能是997结构
             vpn >>= 9;
         }
         idx
@@ -180,7 +180,7 @@ impl PhysPageNum {
     ///
     pub fn get_bytes_array(&self) -> &'static mut [u8] {
         let pa: PhysAddr = (*self).into();
-        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4096) }
+        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4*4096) }
     }
     ///
     pub fn get_mut<T>(&self) -> &'static mut T {

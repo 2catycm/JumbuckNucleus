@@ -1,7 +1,8 @@
 //! Constants used in rCore
-pub const USER_STACK_SIZE: usize = 4096 * 2;
-pub const KERNEL_STACK_SIZE: usize = 4096 * 2;
-pub const KERNEL_HEAP_SIZE: usize = 0x20_0000;
+pub const USER_STACK_SIZE: usize = 4*4096 * 2;
+pub const KERNEL_STACK_SIZE: usize = 4*4096 * 2;
+pub const KERNEL_HEAP_SIZE: usize = 0x20_0000; //2MiB 大小的heap，还不够一个巨页。
+// pub const KERNEL_HEAP_SIZE: usize = 0x40_0000; // 试试
 
 // pub const PAGE_SIZE: usize = 0x1000;
 pub const PAGE_SIZE: usize = 0x1000<<2; // 16Ki = 2^14 = 2^2 * (2^4)^3 = 0x4000

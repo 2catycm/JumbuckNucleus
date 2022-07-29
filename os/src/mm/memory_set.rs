@@ -79,7 +79,7 @@ impl MemorySet {
         }
         self.areas.push(map_area);
     }
-    /// Mention that trampoline is not collected by areas.
+    /// Mention that trampoline is not collected by areas. 蹦床（一种体育器械）
     fn map_trampoline(&mut self) {
         self.page_table.map(
             VirtAddr::from(TRAMPOLINE).into(),
