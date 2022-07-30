@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["FD_STDIN",""],["FD_STDOUT",""]],"fn":[["sys_read","功能：从文件中读取一段内容到缓冲区。 参数：fd 是待读取文件的文件描述符，切片 buffer 则给出缓冲区。 返回值：如果出现了错误则返回 -1，否则返回实际读到的字节数。 syscall ID：63"],["sys_write",""]]});

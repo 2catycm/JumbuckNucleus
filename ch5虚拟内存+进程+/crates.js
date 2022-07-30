@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["os"];
+window.ALL_CRATES = ["jumbuck_nucleus"];
