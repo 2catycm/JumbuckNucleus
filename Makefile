@@ -3,6 +3,7 @@
 # Makefile 语法参考
 # https://unix.stackexchange.com/questions/217295/phony-all-rules-in-gnu-make-file
 
+default_makefile_target: run
 ## 0.0 启用bash功能，比如source，方便脚本编写
 SHELL :=/bin/bash
 ## 0.1 是否对make的流程打日志
@@ -12,7 +13,6 @@ ifneq ($(MAKE_SAY), true)
 	$(echo):= ":"
 endif
 .PHONY: default_makefile_target
-default_makefile_target: run
 # 1. 生命周期 test/run/clean/debug_server/check/qemu/fmt
 .PHONY: test run r clean debug_server ds check qemu fmt doc
 run:
