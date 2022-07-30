@@ -32,7 +32,7 @@ pub fn main() -> i32 {
                     if pid == 0 {
                         // child process
                         if exec(line.as_str()) == -1 {
-                            println!("Error when executing!");
+                            println!("无法找到该应用！");
                             return -4;
                         }
                         unreachable!();
@@ -46,6 +46,7 @@ pub fn main() -> i32 {
                 }
                 print!(">> ");
             }
+            ///退格
             BS | DL => {
                 if !line.is_empty() {
                     print!("{}", BS as char);

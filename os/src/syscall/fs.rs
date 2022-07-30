@@ -21,6 +21,10 @@ pub fn sys_write(fd: usize, buf: *const u8, len: usize) -> isize {
     }
 }
 
+/// 功能：从文件中读取一段内容到缓冲区。
+/// 参数：fd 是待读取文件的文件描述符，切片 buffer 则给出缓冲区。
+/// 返回值：如果出现了错误则返回 -1，否则返回实际读到的字节数。
+/// syscall ID：63
 pub fn sys_read(fd: usize, buf: *const u8, len: usize) -> isize {
     match fd {
         FD_STDIN => {
