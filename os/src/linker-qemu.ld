@@ -13,6 +13,7 @@ SECTIONS
         . = ALIGN(16K);
         strampoline = .;
         *(.text.trampoline);
+        etrampoline = .;
         . = ALIGN(16K);
         *(.text .text.*)
     }
