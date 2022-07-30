@@ -23,6 +23,7 @@ extern "C" {
     fn ebss();
     fn ekernel();
     fn strampoline();
+    fn etrampoline();
 }
 
 lazy_static! {
@@ -94,6 +95,7 @@ impl MemorySet {
         memory_set.map_trampoline();
         // map kernel sections
         println!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
+        println!(".trampoline [{:#x}, {:#x})", strampoline as usize, etrampoline as usize);
         println!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
         println!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
         println!(
@@ -271,7 +273,10 @@ impl MemorySet {
     }
 }
 /// map area structure, controls a contiguous piece of virtual memory
+/// 虚拟的逻辑段 的管理信息，存在于堆中。
+///
 pub struct MapArea {
+    /// 从起始的虚拟页号
     vpn_range: VPNRange,
     data_frames: BTreeMap<VirtPageNum, FrameTracker>,
     map_type: MapType,
@@ -323,11 +328,13 @@ impl MapArea {
         }
         page_table.unmap(vpn);
     }
+    /// map 把逻辑段到物理内存的映射，在多级页表中实际加入。
     pub fn map(&mut self, page_table: &mut PageTable) {
         for vpn in self.vpn_range {
             self.map_one(page_table, vpn);
         }
     }
+    /// numap 把 逻辑段到物理内存段的映射，在多级页表中实际删除。
     pub fn unmap(&mut self, page_table: &mut PageTable) {
         for vpn in self.vpn_range {
             self.unmap_one(page_table, vpn);
@@ -335,6 +342,8 @@ impl MapArea {
     }
     /// data: start-aligned but maybe with shorter length
     /// assume that all frames were cleared before
+    /// 将切片 data 中的数据 拷贝到逻辑段的实际物理页帧上，
+    /// 从而通过逻辑段就能访问这些数据。
     pub fn copy_data(&mut self, page_table: &mut PageTable, data: &[u8]) {
         assert_eq!(self.map_type, MapType::Framed);
         let mut start: usize = 0;

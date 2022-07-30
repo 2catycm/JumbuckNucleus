@@ -2,13 +2,13 @@
 use super::PageTableEntry;
 use crate::config::{PAGE_SIZE, PAGE_SIZE_BITS};
 use core::fmt::{self, Debug, Formatter};
-/// physical address
-const PA_WIDTH_SV39: usize = 56;
-const VA_WIDTH_SV39: usize = 39;
+/// physical address 物理地址的长度设定
+const PA_WIDTH_SV39: usize = 56+2;
+const VA_WIDTH_SV39: usize = 39+2;
 const PPN_WIDTH_SV39: usize = PA_WIDTH_SV39 - PAGE_SIZE_BITS;
 const VPN_WIDTH_SV39: usize = VA_WIDTH_SV39 - PAGE_SIZE_BITS;
 
-/// physical address
+/// physical address 物理地址的抽象表示，为了安全的类型检查
 #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
 pub struct PhysAddr(pub usize);
 /// virtual address
