@@ -27,3 +27,11 @@ clean:
 	@cargo clean
 
 .PHONY: elf binary build clean
+
+# cargo
+fmt:
+	@cargo fmt
+check:
+	@cargo check
+doc:
+	@cargo doc --document-private-items --open

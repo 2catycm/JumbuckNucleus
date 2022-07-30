@@ -11,10 +11,12 @@ echo := echo
 ifneq ($(MAKE_SAY), true)
 	$(echo):= ":"
 endif
+.PHONY: default_makefile_target
+default_makefile_target: run
 # 1. 生命周期 test/run/clean/debug_server/check/qemu/fmt
-.PHONY: test run r clean debug_server ds check qemu fmt
+.PHONY: test run r clean debug_server ds check qemu fmt doc
 run:
-	@$($(echo)) "运行项目。"
+	@$(echo) "运行项目。"
 	@make -C os run
 r: run
 clean:
@@ -40,15 +42,20 @@ fmt:
 	@$(echo) "设置项目代码格式。"
 	@make -C os fmt
 	@make -C user fmt
+doc:
+	@$(echo) "生成项目文档。"
+	@make -C os doc
+	@make -C user doc
 # 2. 选择qemu版本
 QEMU_VERSION ?=7.0-4Ki
 QEMU_BUILD := $(shell pwd)/qemu-bin/qemu-$(QEMU_VERSION)
 .PHONY: set_qemu
 set_qemu: $(QEMU_BUILD)
-	@echo "正在设置Qemu为指定版本($(QEMU_VERSION))。"
-	@source ./scripts/set_qemu.bash
+    #TODO 有bug
+	@$(echo) "正在设置Qemu为指定版本($(QEMU_VERSION))。"
+	@source ./qemu-bin/set_qemu.bash
 	qemu-as-$(QEMU_VERSION)
-	@echo "设置完成。"
+	@$(echo) "设置完成。"
 
 # 3. docker 镜像导出
 .PHONY: run_docker build_docker
