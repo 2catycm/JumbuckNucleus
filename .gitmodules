@@ -1,3 +1,6 @@
 [submodule "qemu-bin"]
 	path = qemu-bin
 	url = git@github.com:2catycm/qemu-bin.git
+[submodule "buddy_system_allocator"]
+	path = buddy_system_allocator
+	url = git@github.com:2catycm/buddy_system_allocator.git
