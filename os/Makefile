@@ -1,23 +1,43 @@
-# Building
-TARGET := riscv64gc-unknown-none-elf
-MODE := release
-KERNEL_ELF := target/$(TARGET)/$(MODE)/os
-KERNEL_BIN := $(KERNEL_ELF).bin
-DISASM_TMP := target/$(TARGET)/$(MODE)/asm
-
-# BOARD
-BOARD ?= qemu
-SBI ?= rustsbi
-BOOTLOADER := ../bootloader/$(SBI)-$(BOARD).bin
-#BOOTLOADER := default
-K210_BOOTLOADER_SIZE := 131072
-
-# Building mode argument
-ifeq ($(MODE), release)
-	MODE_ARG := --release
+## 0.0 启用bash功能，比如source，方便脚本编写
+SHELL :=/bin/bash
+## 0.1 是否对make的流程打日志
+MAKE_SAY ?= false  # true
+echo := echo
+ifneq ($(MAKE_SAY), true)
+	$(echo):= ":"
 endif
 
-# KERNEL ENTRY
+# 1.1 构建目标
+TARGET := riscv64gc-unknown-none-elf
+MODE ?= dev
+CARGO_BUILD_MODE := --profile=$(MODE)
+ifeq ($(MODE), bench)
+	RUSTC_MODE := release
+else
+	ifeq ($(MODE), release)
+		RUSTC_MODE := release
+	endif
+	RUSTC_MODE := debug
+endif
+## 1.2 推导出编译的二进制位置，分ELF格式(用于debug)和BIN格式(用于加载到qemu)
+# cargo编译生成
+KERNEL_ELF := target/$(TARGET)/$(RUSTC_MODE)/os
+KERNEL_BIN := $(KERNEL_ELF).bin
+DISASM_TMP := target/$(TARGET)/$(RUSTC_MODE)/asm
+
+
+# 1.3 操作系统的基础执行环境：监督层二进制接口(Supervisor Binary Interface)的定义
+# 1.3.1 选用的SBI的名称，应当放置同名bin扩展名文件在bootloader文件夹下。可选参数，默认为qemu下模拟运行 rustsbi 。
+BOARD ?= qemu
+SBI ?=rustsbi-$(BOARD) # default
+BOOTLOADER := ../bootloader/$(SBI).bin
+ifeq ($(SBI), default)
+	BOOTLOADER := default
+endif
+# 1.3.2 SBI 内存布局
+# 开发板大小
+K210_BOOTLOADER_SIZE := 131072
+# 内核入口点
 ifeq ($(BOARD), qemu)
 	KERNEL_ENTRY_PA := 0x80200000
 else ifeq ($(BOARD), k210)
@@ -28,7 +48,7 @@ endif
 K210-SERIALPORT	= /dev/ttyUSB0
 K210-BURNER = ../tools/kflash.py
 
-# Binutils
+# 2. 工具
 OBJDUMP := rust-objdump --arch-name=riscv64
 OBJCOPY := rust-objcopy --binary-architecture=riscv64
 
@@ -54,13 +74,14 @@ env:
 	rustup component add llvm-tools-preview
 
 $(KERNEL_BIN): kernel
+	@$(echo) "内核构建成功。正在从elf格式导出bin格式。"
 	@$(OBJCOPY) $(KERNEL_ELF) --strip-all -O binary $@
 
 kernel:
 	@cd ../user && make build TEST=$(TEST)
 	@echo Platform: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build --release --features "board_$(BOARD)"
+	@cargo build $(CARGO_BUILD_MODE) --features "board_$(BOARD)"
 	@rm src/linker.ld
 
 clean:
@@ -79,6 +100,7 @@ run: run-inner
 	
 
 run-inner: build
+	@$(echo) "正在启动qemu模拟器。"
 ifeq ($(BOARD),qemu)
 	@qemu-system-riscv64 \
 		-machine virt \
@@ -101,10 +123,23 @@ debug: build
 		tmux split-window -h "riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
 		tmux -2 attach-session -d
 
-gdbserver: build
+debug_server: build
 	@qemu-system-riscv64 -machine virt -nographic -bios $(BOOTLOADER) -device loader,file=$(KERNEL_BIN),addr=$(KERNEL_ENTRY_PA) -s -S
 
-gdbclient:
+debug_client:
 	@riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'
 
 .PHONY: build env kernel clean disasm disasm-vim run-inner switch-check gdbserver gdbclient
+
+# cargo
+fmt:
+	@cargo fmt
+check:
+	@cargo check
+doc:
+	@cargo doc --document-private-items
+# 测试 makefile 语法
+test_makefile_can_sub_var ?= 10
+test_makefile_can_sub:
+	echo "Greeting from sub makefile! "
+	echo "var in sub makefile is $(test_makefile_can_sub_var)"
