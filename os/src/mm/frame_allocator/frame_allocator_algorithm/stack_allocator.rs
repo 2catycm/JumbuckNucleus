@@ -18,7 +18,7 @@ impl ContinuousStorageAllocationAlgorithm for StackAllocator {
     fn init(&mut self, l: usize, r: usize) {
         self.current = l;
         self.end = r;
-        log::info!("可用的物理页数：{}", self.get_remain_frame_cnt());
+        log::info!("Stack 物理帧分配器启动，可用的物理页数：{}", self.get_remain_frame_cnt());
         assert_eq!(self.get_remain_frame_cnt(), self.end - self.current);
     }
     fn alloc(&mut self, count: usize) -> Option<usize> {

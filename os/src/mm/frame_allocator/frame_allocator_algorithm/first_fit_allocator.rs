@@ -23,7 +23,7 @@ impl ContinuousStorageAllocationAlgorithm for FirstFitAllocator {
         self.total = end - start;
         self.captains = VecDeque::with_capacity(self.total);
         self.captains.push_back((start, self.total));
-        log::info!("First Fit 分配器启动成功！当前空闲物理页帧的数量为{}", self.get_remain_frame_cnt())
+        log::info!("敢为天下先分配器启动成功！当前空闲物理页帧的数量为{}", self.get_remain_frame_cnt())
     }
 
     fn alloc(&mut self, count: usize) -> Option<usize> {
