@@ -105,6 +105,6 @@ impl ContinuousStorageAllocationAlgorithm for BuddySystemAllocator {
 
 ///
 fn prev_power_of_two(num: usize) -> usize {
-    // leading_zeros是说这个数字签名有多少个0.
+    // leading_zeros是说这个数字前面有多少个0.
     1 << (8 * (size_of::<usize>()) - num.leading_zeros() as usize - 1)
 }

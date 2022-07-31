@@ -187,6 +187,13 @@ impl PhysPageNum {
         let pa: PhysAddr = (*self).into();
         pa.get_mut()
     }
+    /// 清除该物理页的内容，刷新为0.
+    pub fn clear(&mut self){
+        let bytes_array = self.get_bytes_array();
+        for i in bytes_array {
+            *i = 0;
+        }
+    }
 }
 
 pub trait StepByOne {

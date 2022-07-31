@@ -27,10 +27,10 @@ mod first_fit_allocator;
 mod best_fit_allocator;
 mod worse_fit_allocator;
 // type ContinuousStorageAllocationAlgorithmImpl = stack_allocator::StackAllocator;
-// type ContinuousStorageAllocationAlgorithmImpl = buddy_system_allocator::BuddySystemAllocator;
+type ContinuousStorageAllocationAlgorithmImpl = buddy_system_allocator::BuddySystemAllocator;
 // type ContinuousStorageAllocationAlgorithmImpl = first_fit_allocator::FirstFitAllocator;
 // type ContinuousStorageAllocationAlgorithmImpl = best_fit_allocator::BestFitAllocator;
-type ContinuousStorageAllocationAlgorithmImpl = worse_fit_allocator::WorseFitAllocator;
+// type ContinuousStorageAllocationAlgorithmImpl = worse_fit_allocator::WorseFitAllocator;
 
 // 利用具体算法，实现物理页号的分配。
 use super::{FrameAllocator, PhysPageNum};

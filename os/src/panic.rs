@@ -20,7 +20,7 @@ fn panic_handler(info: &core::panic::PanicInfo) -> ! {
     println!("\t如果您需要了解更多信息，请查看此错误:");
     if let Some(location) = info.location() {
         println!(
-            "{}:{} '{:?}'",
+            "\t{}:{} \n\t\t'{:?}'",
             location.file(),
             location.line(),
             info.message().unwrap()

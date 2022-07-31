@@ -1,10 +1,10 @@
 //! Implementation of [`MapArea`] and [`MemorySet`].
-use super::{frame_alloc, FrameTracker};
+use super::{alloc_one_frame, FrameBlockTracker};
 use super::{PTEFlags, PageTable, PageTableEntry};
 use super::{PhysAddr, PhysPageNum, VirtAddr, VirtPageNum};
 use super::{StepByOne, VPNRange};
 use crate::config::{MEMORY_END, MMIO, PAGE_SIZE, TRAMPOLINE, TRAP_CONTEXT, USER_STACK_SIZE};
-use crate::mm::frame_allocator::get_remain_frame_cnt;
+use crate::memory::frame_allocator::get_remain_frame_cnt;
 use crate::sync::UPSafeCell;
 use alloc::collections::BTreeMap;
 use alloc::sync::Arc;
@@ -22,7 +22,7 @@ extern "C" {
     fn edata();
     fn sbss_with_stack();
     fn ebss();
-    fn ekernel();
+    fn end_kernel();
     fn strampoline();
     fn etrampoline();
 }
@@ -149,7 +149,7 @@ impl MemorySet {
         println!("mapping physical memory");
         memory_set.push(
             MapArea::new(
-                (ekernel as usize).into(),
+                (end_kernel as usize).into(),
                 MEMORY_END.into(),
                 MapType::Identical,
                 MapPermission::R | MapPermission::W,
@@ -282,7 +282,7 @@ impl MemorySet {
 pub struct MapArea {
     /// 从起始的虚拟页号
     vpn_range: VPNRange,
-    data_frames: BTreeMap<VirtPageNum, FrameTracker>,
+    data_frames: BTreeMap<VirtPageNum, FrameBlockTracker>,
     map_type: MapType,
     map_perm: MapPermission,
 }
@@ -318,7 +318,7 @@ impl MapArea {
                 ppn = PhysPageNum(vpn.0);
             }
             MapType::Framed => {
-                if let Some(frame) = frame_alloc() {
+                if let Some(frame) = alloc_one_frame() {
                     ppn = frame.ppn;
                     self.data_frames.insert(vpn, frame);
                 } else {
@@ -399,20 +399,8 @@ bitflags! {
 }
 
 #[allow(unused)]
-pub fn vector_too_big_test() {
-    // let mut t = Vec::new();
-    // for i in 0..20_000_000 {
-    //     t.push(0);
-    //     if i % 500 == 0 {
-    //         let p = (&t[i]) as *const i32 as usize;
-    //         println!("t[{}]'s address is {:x}", i, p);
-    //     }
-    // }
-}
-#[allow(unused)]
-///Check PageTable running correctly
+///检查页表是否正确运行。
 pub fn remap_test() {
-    vector_too_big_test();
     let mut kernel_space = KERNEL_SPACE.exclusive_access();
     let mid_text: VirtAddr = ((stext as usize + etext as usize) / 2).into();
     let mid_rodata: VirtAddr = ((srodata as usize + erodata as usize) / 2).into();
@@ -432,5 +420,5 @@ pub fn remap_test() {
         .translate(mid_data.floor())
         .unwrap()
         .executable(),);
-    println!("remap_test passed!");
+    log::warn!("虚实地址转换映射测试通过!");
 }

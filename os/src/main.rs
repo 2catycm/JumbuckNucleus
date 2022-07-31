@@ -12,7 +12,7 @@
 //! - [`task`]:  任务（进程）管理。
 //! - [`syscall`]: 系统调用的接管
 //!
-//! - [`mm`]:  基于 SV39 的内存管理方案
+//! - [`memory`]:  基于 SV39 的内存管理方案
 //! - [`sync`]:  UPSafeCell 声明在单进程下访问为安全，避免 unsafe 块的使用。
 //! 3. 当操作系统初始化完毕后，我们使用[`task::run_tasks()`]运行用户进程，进入受限直接执行的进程管理。
 #![deny(missing_docs)]
@@ -38,7 +38,7 @@ mod board;
 mod console;
 mod config;
 mod loader;
-pub mod mm;
+pub mod memory;
 mod panic;
 mod sbi;
 mod sheep_logger;
@@ -72,9 +72,11 @@ pub fn rust_main() -> ! {
     // sheep_logger::set_level(log::LevelFilter::Debug);
     sheep_logger::set_level(log::LevelFilter::Info);
     log::info!("欢迎来到，绵羊核心。");
-    mm::init();
-    mm::test_panic_when_heap_space_not_enough();
-    mm::remap_test();
+    memory::init();
+    // memory::test_panic_when_heap_space_not_enough();
+    memory::test_heap();
+    memory::test_frame_allocator();
+    memory::remap_test();
     task::add_initproc();
     log::info!("成功加载 init 进程。");
     trap::init();
@@ -82,8 +84,7 @@ pub fn rust_main() -> ! {
     log::info!("开启时钟中断。");
     timer::set_next_trigger();
     log::info!("正在加载 App 。");
-    loader::list_apps();
     log::info!("App 加载完成。开始调度运行。");
     task::run_tasks();
-    panic!("Unreachable in rust_main!");
+    panic!("操作系统状态异常！进程管理出现致命错误！");
 }

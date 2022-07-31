@@ -1,6 +1,6 @@
 //! Implementation of [`PageTableEntry`] and [`PageTable`].
-use super::{frame_alloc, FrameTracker, PhysAddr, PhysPageNum, StepByOne, VirtAddr, VirtPageNum};
-use crate::mm::frame_allocator::get_remain_frame_cnt;
+use super::{alloc_one_frame, FrameBlockTracker, PhysAddr, PhysPageNum, StepByOne, VirtAddr, VirtPageNum};
+use crate::memory::frame_allocator::get_remain_frame_cnt;
 use alloc::string::String;
 use alloc::vec;
 use alloc::vec::Vec;
@@ -66,13 +66,13 @@ impl PageTableEntry {
 
 pub struct PageTable {
     root_ppn: PhysPageNum,
-    frames: Vec<FrameTracker>,
+    frames: Vec<FrameBlockTracker>,
 }
 
 /// Assume that it won't oom when creating/mapping.
 impl PageTable {
     pub fn new() -> Self {
-        let frame = frame_alloc().unwrap();
+        let frame = alloc_one_frame().unwrap();
         PageTable {
             root_ppn: frame.ppn,
             frames: vec![frame],
@@ -97,7 +97,7 @@ impl PageTable {
                 break;
             }
             if !pte.is_valid() {
-                if let Some(frame) = frame_alloc() {
+                if let Some(frame) = alloc_one_frame() {
                     *pte = PageTableEntry::new(frame.ppn, PTEFlags::V);
                     self.frames.push(frame);
                 } else {

@@ -2,6 +2,7 @@
 
 /// Get the total number of applications.
 use alloc::vec::Vec;
+use core::cmp::min;
 use lazy_static::*;
 ///get app number
 pub fn get_num_app() -> usize {
@@ -29,26 +30,29 @@ pub fn get_app_data(app_id: usize) -> &'static [u8] {
 
 lazy_static! {
     ///All of app's name
-    static ref APP_NAMES: Vec<&'static str> = {
+    static ref APP_TUPLES : (Vec<&'static str>, Vec<usize>) = {
         let num_app = get_num_app();
         extern "C" {
             fn _app_names();
         }
         let mut start = _app_names as usize as *const u8;
-        let mut v = Vec::new();
+        let mut names = Vec::new();
+        let mut sizes = Vec::new();
         unsafe {
             for _ in 0..num_app {
                 let mut end = start;
                 while end.read_volatile() != b'\0' {
                     end = end.add(1);
                 }
-                let slice = core::slice::from_raw_parts(start, end as usize - start as usize);
+                let size = end as usize- start as usize;
+                let slice = core::slice::from_raw_parts(start, size);
+                sizes.push(size);
                 let str = core::str::from_utf8(slice).unwrap();
-                v.push(str);
+                names.push(str);
                 start = end.add(1);
             }
         }
-        v
+        (names, sizes)
     };
 }
 
@@ -57,14 +61,19 @@ lazy_static! {
 pub fn get_app_data_by_name(name: &str) -> Option<&'static [u8]> {
     let num_app = get_num_app();
     (0..num_app)
-        .find(|&i| APP_NAMES[i] == name)
+        .find(|&i| APP_TUPLES.0[i] == name)
         .map(get_app_data)
 }
 ///list all apps
-pub fn list_apps() {
-    println!("/**** APPS ****");
-    for app in APP_NAMES.iter() {
-        println!("{}", app);
+pub fn sys_ls() ->usize {
+    color_println!(34, "/**** App List ****");
+    let mut total = 0;
+    let len = min(APP_TUPLES.0.len(), APP_TUPLES.1.len());
+    for i in 0..len{
+        println!("{:>5} Bytes\t{}", APP_TUPLES.1[i], APP_TUPLES.0[i]);
+        total+=APP_TUPLES.1[i];
     }
-    println!("**************/");
+    println!("total {} Bytes", total);
+    color_println!(34,"**************/");
+    len
 }
