@@ -43,22 +43,24 @@ jobs:
       - name: Cache QEMU
         uses: actions/cache@v3
         with:
-          path: qemu-7.0.0
-          key: qemu-7.0.0-x86_64-riscv64-bin
+#          path: qemu-7.0.0
+#          key: qemu-7.0.0-x86_64-riscv64
+          path: qemu-bin
+          key: qemu-bin-x86_64-riscv64
       - name: Install QEMU
         run: |
           sudo apt-get update
           sudo apt-get install ninja-build -y
-          if [ ! -d qemu-7.0.0 ]; then
+          if [ ! -d qemu-bin ]; then
 #            wget https://download.qemu.org/qemu-7.0.0.tar.xz
 #            tar -xf qemu-7.0.0.tar.xz
 #            cd qemu-7.0.0
 #            ./configure --target-list=riscv64-softmmu
 #            make -j
-             git clone https://github.com/2catycm/qemu-bin.git qemu-7.0.0
-             cd qemu-7.0.0
+             git clone https://github.com/2catycm/qemu-bin.git qemu-bin
+             cd qemu-bin
           else
-            cd qemu-7.0.0
+            cd qemu-bin
           fi
 #          sudo make install
           export PATH=$PATH:${pwd}/qemu-7.0-16Ki
