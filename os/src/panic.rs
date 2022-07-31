@@ -6,7 +6,7 @@ use core::fmt::Write;
 use core::mem::MaybeUninit;
 
 mod u8array {
-    use crate::println;
+    // use crate::println;
     use core::fmt;
 
     pub struct U8Array<'a>(pub &'a mut [u8], usize);
@@ -22,7 +22,7 @@ mod u8array {
             self.1 = 0;
         }
         pub fn as_str(&self) -> &str {
-            println!("Invoke as str with size: {}", self.1);
+            // println!("Invoke as str with size: {}", self.1);
             core::str::from_utf8(&self.0[..self.1]).unwrap()
         }
     }

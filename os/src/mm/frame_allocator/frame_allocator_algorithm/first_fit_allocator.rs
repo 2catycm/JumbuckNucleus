@@ -30,45 +30,57 @@ impl ContinuousStorageAllocationAlgorithm for FirstFitAllocator {
         for i in 0..self.captains.len(){
             let (allocated_frame, troop_size) = self.captains[i];
             if troop_size > count{
+                log::debug!("{:?} 队长接受了 {} 的请求", self.captains[i], count);
                 self.captains[i].0 += count;
                 self.captains[i].1 -= count;
+                log::debug!("队伍状态变更为{:?}", self.captains[i]);
                 return Some(allocated_frame);
             }else if troop_size==count{
+                log::debug!("{:?} 队长接受了 {} 的请求", self.captains[i], count);
                 self.captains.remove(i);
+                log::debug!("队伍消失");
                 return Some(allocated_frame);
             }
         }
+        log::warn!("无法找到合适的连续空间！");
         None
     }
 
     fn dealloc(&mut self, frame: usize, count: usize) {
-        let mut frame = frame;
+
         for i in 0..self.captains.len(){
             let (start, troop_size) = self.captains[i];
             assert_ne!(start, frame);
             if start>frame{ //前面一直都是比frame小的。现在比它大，所以插在前面。
+                log::debug!("{:?} 队长的左边可以释放({}, {})", self.captains[i], frame, count);
                 assert!(frame+count<=start); //不应当overlap
                 //试图合并
                 //可以不合并，但是算法就不完备。
                 if frame+count==start{
                     self.captains[i].0 = frame;
                     self.captains[i].1 +=count;
+                    log::debug!("可以合并， 队伍状态变更为{:?}", self.captains[i]);
                 }else {
-                    if self.captains[i-1].0!=frame{ //不是此前合并的情况。
-                        self.captains.insert(i, (frame, count)); //新的队长。
+                    self.captains.insert(i, (frame, count)); //新的队长。
+                    log::debug!("右边不可以合并， 已经插入{:?}", self.captains[i]);
+                }
+                //顺便要看看左边能不能合并，因为这个情况之前没有考虑。
+                if i!=0 {
+                    let (start, troop_size) = self.captains[i-1];
+                    if start+troop_size==frame {
+                        self.captains[i].0 = start;
+                        self.captains[i].1 += troop_size;
+                        self.captains.remove(i-1);
+                        log::debug!("左边可以合并，删除左边并且队伍状态变更为{:?}", self.captains[i-1]);
                     }
                 }
                 return;
             }else{
                 assert!(start+troop_size<=frame); //不应当overlap
-                //可删除，但是算法就不完备。
-                if start+troop_size==frame{ //前面可以合并
-                    self.captains[i].1 +=count;
-                    frame = self.captains[i].0; //下一次循环的时候，一定满足上面的if，可以试图和后面的也合并
-                }
             }
         }
         //都比frame小，插入到最后。
+        log::debug!("在所有队长之后，释放并产生新的队长({}, {})", frame, count);
         self.captains.push_back((frame, count));
     }
 

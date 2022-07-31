@@ -69,6 +69,7 @@ fn clear_bss() {
 pub fn rust_main() -> ! {
     clear_bss();
     sheep_logger::init().expect("日志管理器加载失败！");
+    // sheep_logger::set_level(log::LevelFilter::Debug);
     sheep_logger::set_level(log::LevelFilter::Info);
     log::info!("欢迎来到，绵羊核心。");
     mm::init();
