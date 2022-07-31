@@ -82,7 +82,6 @@ macro_rules! eprintln {
     }
 }
 
-
 /// 实现 简单彩色打印
 #[macro_export]
 macro_rules! color_print {
@@ -98,20 +97,20 @@ macro_rules! color_println {
         $crate::color_print!($color, "\n")  //如果是空的，没有参数，那么调用上面的eprint打出一行。
     };
     ($color:expr, $fmt: literal $(, $($arg: tt)+)?) => {
-        $print(format_args!(concat!(concat!("\x1b[{}m", $fmt), "\x1b[0m\n"),
+        $crate::console::print(format_args!(concat!(concat!("\x1b[{}m", $fmt), "\x1b[0m\n"),
         $color $(, $($arg)+)? ))
     }
 }
 
 /// 开启蓝屏
-pub fn open_blue_print(){
+pub fn open_blue_print() {
     print!("\x1b[44m");
 }
 /// 清除控制台效果
-pub fn close_console_effects(){
+pub fn close_console_effects() {
     print!("\x1b[0m");
 }
 /// 清空控制台
-pub fn clear_console(){
+pub fn clear_console() {
     print!("\x1b[2J");
 }

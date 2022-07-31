@@ -39,60 +39,13 @@ impl Drop for FrameTracker {
 
 trait FrameAllocator {
     fn new() -> Self;
-    fn alloc(&mut self) -> Option<PhysPageNum>;
-    fn dealloc(&mut self, ppn: PhysPageNum);
-    fn get_remain_frame_cnt(&mut self)->usize;
+    fn init(&mut self, l: PhysPageNum, r: PhysPageNum);
+    fn alloc(&mut self, count: usize) -> Option<PhysPageNum>;
+    fn dealloc(&mut self, ppn: PhysPageNum, count: usize);
+    fn get_remain_frame_cnt(&mut self) -> usize;
 }
-/// an implementation for frame allocator
-pub struct StackFrameAllocator {
-    current: usize,
-    end: usize,
-    recycled: Vec<usize>, //存的是physical page number。 Vec是作为一个自动扩容栈来使用的。
-}
-
-impl StackFrameAllocator {
-    pub fn init(&mut self, l: PhysPageNum, r: PhysPageNum) {
-        self.current = l.0;
-        self.end = r.0;
-        println!("可用的物理页数：{}", self.get_remain_frame_cnt());
-        assert_eq!(self.get_remain_frame_cnt(), self.end - self.current);
-    }
-}
-impl FrameAllocator for StackFrameAllocator {
-    fn new() -> Self {
-        Self {
-            current: 0,
-            end: 0,
-            recycled: Vec::new(),
-        }
-    }
-    fn alloc(&mut self) -> Option<PhysPageNum> {
-        if let Some(ppn) = self.recycled.pop() {   //如果最后一个元素可以解包
-            Some(ppn.into()) //返回最后一个页。
-        } else if self.current == self.end {
-            None //已经非法
-        } else {
-            self.current += 1;
-            Some((self.current - 1).into())     //向量为空。 此时需要搞个新的页号送给他。
-        }
-    }
-    fn dealloc(&mut self, ppn: PhysPageNum) {
-        let ppn = ppn.0;
-        // validity check
-        if ppn >= self.current || self.recycled.iter().any(|&v| v == ppn) {
-            panic!("Frame ppn={:#x} has not been allocated!", ppn);
-        }
-        // recycle
-        self.recycled.push(ppn);
-    }
-
-    fn get_remain_frame_cnt(&mut self)->usize {
-        (self.end-self.current)+self.recycled.len()
-    }
-}
-
-type FrameAllocatorImpl = StackFrameAllocator;
-
+mod frame_allocator_algorithm;
+use frame_allocator_algorithm::FrameAllocatorImpl;
 lazy_static! {
     /// frame allocator instance through lazy_static!
     pub static ref FRAME_ALLOCATOR: UPSafeCell<FrameAllocatorImpl> =
@@ -112,15 +65,15 @@ pub fn init_frame_allocator() {
 pub fn frame_alloc() -> Option<FrameTracker> {
     FRAME_ALLOCATOR
         .exclusive_access()
-        .alloc()
+        .alloc(1)
         .map(FrameTracker::new)
 }
 /// deallocate a frame
 fn frame_dealloc(ppn: PhysPageNum) {
-    FRAME_ALLOCATOR.exclusive_access().dealloc(ppn);
+    FRAME_ALLOCATOR.exclusive_access().dealloc(ppn, 1);
 }
 
-pub fn get_remain_frame_cnt()->usize{
+pub fn get_remain_frame_cnt() -> usize {
     FRAME_ALLOCATOR.exclusive_access().get_remain_frame_cnt()
 }
 #[allow(unused)]

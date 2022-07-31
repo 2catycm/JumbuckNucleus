@@ -1,7 +1,10 @@
 //! Constants used in rCore for qemu
 #![allow(unused)]
 pub const CLOCK_FREQ: usize = 12500000;
-pub const MEMORY_END: usize = 0x81000000;
+pub const MEMORY_START: usize = 0x80000000;
+pub const KERNEL_START: usize = 0x80200000;
+// pub const MEMORY_END: usize = 0x81000000;  //只启用8MiB
+pub const MEMORY_END: usize = 0x88000000; //启用128MiB
 
 pub const MMIO: &[(usize, usize)] = &[
     (0x0010_0000, 0x00_2000), // VIRT_TEST/RTC  in virt machine

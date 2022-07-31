@@ -4,6 +4,7 @@ use super::{PTEFlags, PageTable, PageTableEntry};
 use super::{PhysAddr, PhysPageNum, VirtAddr, VirtPageNum};
 use super::{StepByOne, VPNRange};
 use crate::config::{MEMORY_END, MMIO, PAGE_SIZE, TRAMPOLINE, TRAP_CONTEXT, USER_STACK_SIZE};
+use crate::mm::frame_allocator::get_remain_frame_cnt;
 use crate::sync::UPSafeCell;
 use alloc::collections::BTreeMap;
 use alloc::sync::Arc;
@@ -11,7 +12,6 @@ use alloc::vec::Vec;
 use core::arch::asm;
 use lazy_static::*;
 use riscv::register::satp;
-use crate::mm::frame_allocator::{get_remain_frame_cnt};
 
 extern "C" {
     fn stext();
@@ -96,7 +96,10 @@ impl MemorySet {
         memory_set.map_trampoline();
         // map kernel sections
         println!(".text [{:#x}, {:#x})", stext as usize, etext as usize);
-        println!(".trampoline [{:#x}, {:#x})", strampoline as usize, etrampoline as usize);
+        println!(
+            ".trampoline [{:#x}, {:#x})",
+            strampoline as usize, etrampoline as usize
+        );
         println!(".rodata [{:#x}, {:#x})", srodata as usize, erodata as usize);
         println!(".data [{:#x}, {:#x})", sdata as usize, edata as usize);
         println!(
@@ -315,11 +318,14 @@ impl MapArea {
                 ppn = PhysPageNum(vpn.0);
             }
             MapType::Framed => {
-                if let Some(frame) = frame_alloc(){
+                if let Some(frame) = frame_alloc() {
                     ppn = frame.ppn;
                     self.data_frames.insert(vpn, frame);
-                }else {
-                    panic!("绵羊核心 物理页 分配异常！剩余页数: {}", get_remain_frame_cnt());
+                } else {
+                    panic!(
+                        "绵羊核心: 物理页分配异常！剩余页数: {}",
+                        get_remain_frame_cnt()
+                    );
                 }
                 // let frame = frame_alloc().unwrap();
             }
@@ -393,7 +399,7 @@ bitflags! {
 }
 
 #[allow(unused)]
-pub fn vector_too_big_test(){
+pub fn vector_too_big_test() {
     // let mut t = Vec::new();
     // for i in 0..20_000_000 {
     //     t.push(0);

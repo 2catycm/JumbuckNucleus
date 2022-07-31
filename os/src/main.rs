@@ -37,16 +37,16 @@ mod board;
 #[macro_use]
 mod console;
 mod config;
-mod lang_items;
 mod loader;
 pub mod mm;
+mod panic;
 mod sbi;
+mod sheep_logger;
 pub mod sync;
 pub mod syscall;
 pub mod task;
 mod timer;
 pub mod trap;
-// mod sheep_logger;
 
 use core::arch::global_asm;
 
@@ -68,17 +68,20 @@ fn clear_bss() {
 /// the rust entry-point of os
 pub fn rust_main() -> ! {
     clear_bss();
-    println!("欢迎来到，绵羊核心。");
+    sheep_logger::init().expect("日志管理器加载失败！");
+    sheep_logger::set_level(log::LevelFilter::Info);
+    log::info!("欢迎来到，绵羊核心。");
     mm::init();
-
     mm::remap_test();
     task::add_initproc();
-    println!("after initproc!");
+    log::info!("成功加载 init 进程。");
     trap::init();
-    //trap::enable_interrupt();
     trap::enable_timer_interrupt();
+    log::info!("开启时钟中断。");
     timer::set_next_trigger();
+    log::info!("正在加载 App 。");
     loader::list_apps();
+    log::info!("App 加载完成。开始调度运行。");
     task::run_tasks();
     panic!("Unreachable in rust_main!");
 }

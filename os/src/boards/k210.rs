@@ -1,6 +1,7 @@
 pub const CLOCK_FREQ: usize = 403000000 / 62;
 pub const MEMORY_END: usize = 0x80600000; // 挺小的，就 400000 = 4MiB
-// pub const MEMORY_END: usize = 0x80a00000; // 挺小的，就 400000 = 4MiB
+                                          // pub const MEMORY_END: usize = 0x88000000;
+                                          // pub const MEMORY_END: usize = 0x80a00000; // 挺小的，就 400000 = 4MiB
 
 pub const MMIO: &[(usize, usize)] = &[
     // we don't need clint in S priv when running

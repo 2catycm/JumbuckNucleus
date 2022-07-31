@@ -1,5 +1,6 @@
 //! Implementation of [`PageTableEntry`] and [`PageTable`].
 use super::{frame_alloc, FrameTracker, PhysAddr, PhysPageNum, StepByOne, VirtAddr, VirtPageNum};
+use crate::mm::frame_allocator::get_remain_frame_cnt;
 use alloc::string::String;
 use alloc::vec;
 use alloc::vec::Vec;
@@ -96,9 +97,15 @@ impl PageTable {
                 break;
             }
             if !pte.is_valid() {
-                let frame = frame_alloc().unwrap();
-                *pte = PageTableEntry::new(frame.ppn, PTEFlags::V);
-                self.frames.push(frame);
+                if let Some(frame) = frame_alloc() {
+                    *pte = PageTableEntry::new(frame.ppn, PTEFlags::V);
+                    self.frames.push(frame);
+                } else {
+                    panic!(
+                        "绵羊核心: 物理页分配异常！剩余页数: {}",
+                        get_remain_frame_cnt()
+                    );
+                }
             }
             ppn = pte.ppn();
         }

@@ -1,12 +1,10 @@
 use crate::color_println;
-use log::{LevelFilter, Record, Level, Metadata, SetLoggerError, Log};
-use sheep_nucleus::*;
+use log::{Level, LevelFilter, Log, Metadata, Record, SetLoggerError};
 
 /// Implements [`Log`].
-pub struct SheepLogger {
-}
+pub struct SheepLogger {}
 #[derive(Debug)]
-enum LogColor{
+enum LogColor {
     Red = 31,
     Green = 32,
     Blue = 34,
@@ -31,36 +29,41 @@ impl Log for SheepLogger {
                 Level::Debug => LogColor::Green,
                 Level::Trace => LogColor::Gray,
             };
-            color_println!(color as u32, "[{}]{}: {}", record.level(), record.target(), record.args());
+            color_println!(
+                color as u32,
+                "[{}] \n{}:\t{}",
+                record.target(),
+                record.level(),
+                record.args()
+            );
             //还有别的信息可以打
             //见 https://docs.rs/log/0.4.17/log/struct.Record.html
         }
     }
     fn flush(&self) {}
 }
-static LOGGER: SheepLogger = SheepLogger{};
+static LOGGER: SheepLogger = SheepLogger {};
 
 pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOGGER)
-        .map(|()| log::set_max_level(LevelFilter::Info))
+    log::set_logger(&LOGGER).map(|()| log::set_max_level(LevelFilter::Info))
 }
-pub fn set_level(level: LevelFilter)->() {
+pub fn set_level(level: LevelFilter) -> () {
     log::set_max_level(level);
-    if cfg!(feature = "test_log"){
+    if cfg!(feature = "test_log") {
         test_can_run();
     }
 }
 
 // #[cfg(test_log)]
-pub fn test_can_run()->(){
+pub fn test_can_run() -> () {
     log::error!("This is an error message.");
     log::warn!("This is an warning message.");
     log::info!("This is an info message.");
     log::debug!("This is an warning message.");
     log::trace!("This is an trace message.");
-    // .. 
+    // ..
     log::info!("打印字母信息测试!");
-    for c in 'A'..='Z'{
+    for c in 'A'..='Z' {
         eprint!("{}", c);
     }
     eprintln!();
