@@ -3,8 +3,8 @@ use super::PageTableEntry;
 use crate::config::{PAGE_SIZE, PAGE_SIZE_BITS};
 use core::fmt::{self, Debug, Formatter};
 /// physical address 物理地址的长度设定
-const PA_WIDTH_SV39: usize = 56 + 2;
-const VA_WIDTH_SV39: usize = 39 + 2;
+const PA_WIDTH_SV39: usize = 56 + (PAGE_SIZE_BITS-12);
+const VA_WIDTH_SV39: usize = 39 + (PAGE_SIZE_BITS-12);
 const PPN_WIDTH_SV39: usize = PA_WIDTH_SV39 - PAGE_SIZE_BITS;
 const VPN_WIDTH_SV39: usize = VA_WIDTH_SV39 - PAGE_SIZE_BITS;
 
@@ -180,7 +180,7 @@ impl PhysPageNum {
     ///
     pub fn get_bytes_array(&self) -> &'static mut [u8] {
         let pa: PhysAddr = (*self).into();
-        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, 4 * 4096) }
+        unsafe { core::slice::from_raw_parts_mut(pa.0 as *mut u8, PAGE_SIZE) }
     }
     ///
     pub fn get_mut<T>(&self) -> &'static mut T {

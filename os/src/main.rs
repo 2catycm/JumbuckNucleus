@@ -34,9 +34,15 @@ mod board;
 #[path = "boards/qemu.rs"]
 mod board;
 
+#[cfg(feature = "is_4KiB")]
+#[path = "configs/config_4KiB.rs"]
+mod config;
+#[cfg(not(any(feature = "is_4KiB")))]
+#[path = "configs/config_16KiB.rs"]
+mod config;
+
 #[macro_use]
 mod console;
-mod config;
 mod loader;
 pub mod memory;
 mod panic;

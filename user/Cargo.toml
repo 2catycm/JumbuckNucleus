@@ -16,3 +16,6 @@ debug = true
 [features]
 board_qemu = []
 board_k210 = []
+
+is_16KiB = []
+is_4KiB = []

@@ -12,17 +12,17 @@ use buddy_system_allocator::LockedHeap;
 use syscall::*;
 
 // const USER_HEAP_SIZE: usize = 16384;
-const USER_HEAP_SIZE: usize = 16384*2;
+const USER_HEAP_SIZE: usize = 16384*1024;
 
 static mut HEAP_SPACE: [u8; USER_HEAP_SIZE] = [0; USER_HEAP_SIZE];
 
 #[global_allocator]
 // static HEAP: LockedHeap<15> = LockedHeap::empty();
-static HEAP: LockedHeap<17> = LockedHeap::empty();
+static HEAP: LockedHeap<32> = LockedHeap::empty();
 
 #[alloc_error_handler]
 pub fn handle_alloc_error(layout: core::alloc::Layout) -> ! {
-    panic!("Heap allocation error, layout = {:?}", layout);
+    panic!("用户堆分配错误, layout = {:?}", layout);
 }
 
 #[no_mangle]

@@ -1,0 +1,197 @@
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 257949696 bytes for Failed to commit area from 0x000000070a000000 to 0x0000000719600000 of length 257949696.
+# Possible reasons:
+#   The system is out of physical RAM or swap space
+#   The process is running with CompressedOops enabled, and the Java Heap may be blocking the growth of the native heap
+# Possible solutions:
+#   Reduce memory load on the system
+#   Increase physical memory or swap space
+#   Check if swap backing store is full
+#   Decrease Java heap size (-Xmx/-Xms)
+#   Decrease number of Java threads
+#   Decrease Java thread stack sizes (-Xss)
+#   Set larger code cache with -XX:ReservedCodeCacheSize=
+# This output file may be truncated or incomplete.
+#
+#  Out of Memory Error (src/hotspot/os/windows/os_windows.cpp:3627), pid=6332, tid=25080
+#
+# JRE version:  (11.0.15+10) (build )
+# Java VM: OpenJDK 64-Bit Server VM (11.0.15+10-b2043.56, mixed mode, sharing, tiered, compressed oops, g1 gc, windows-amd64)
+# No core dump will be written. Minidumps are not enabled by default on client versions of Windows
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: git4idea.http.GitAskPassApp Username for 'https://github.com': 
+
+Host: AMD Ryzen 7 4800H with Radeon Graphics         , 16 cores, 15G,  Windows 11 , 64 bit Build 22000 (10.0.22000.434)
+Time: Sun Jul 31 18:13:51 2022  Windows 11 , 64 bit Build 22000 (10.0.22000.434) elapsed time: 0.028143 seconds (0d 0h 0m 0s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000001b214f03800):  JavaThread "Unknown thread" [_thread_in_vm, id=25080, stack(0x00000013fac00000,0x00000013fad00000)]
+
+Stack: [0x00000013fac00000,0x00000013fad00000]
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [jvm.dll+0x61612a]
+V  [jvm.dll+0x79c450]
+V  [jvm.dll+0x79da6d]
+V  [jvm.dll+0x79e143]
+V  [jvm.dll+0x24cc18]
+V  [jvm.dll+0x613174]
+V  [jvm.dll+0x607e55]
+V  [jvm.dll+0x30b1cb]
+V  [jvm.dll+0x30b13a]
+V  [jvm.dll+0x30b012]
+V  [jvm.dll+0x30ff76]
+V  [jvm.dll+0x35b4c3]
+V  [jvm.dll+0x35bbc6]
+V  [jvm.dll+0x35b5c3]
+V  [jvm.dll+0x2e5918]
+V  [jvm.dll+0x2e6ab7]
+V  [jvm.dll+0x7794f7]
+V  [jvm.dll+0x77acec]
+V  [jvm.dll+0x368a59]
+V  [jvm.dll+0x75ce8e]
+V  [jvm.dll+0x3d6a33]
+V  [jvm.dll+0x3d9001]
+C  [jli.dll+0x536b]
+C  [ucrtbase.dll+0x26c0c]
+C  [KERNEL32.DLL+0x154e0]
+C  [ntdll.dll+0x485b]
+
+
+---------------  P R O C E S S  ---------------
+
+Threads class SMR info:
+_java_thread_list=0x000001b212d785c0, length=0, elements={
+}
+
+Java Threads: ( => current thread )
+
+Other Threads:
+  0x000001b214f1b800 GCTaskThread "GC Thread#0" [stack: 0x00000013fad00000,0x00000013fae00000] [id=25628]
+  0x000001b214f75000 ConcurrentGCThread "G1 Main Marker" [stack: 0x00000013fae00000,0x00000013faf00000] [id=9224]
+  0x000001b214f76800 ConcurrentGCThread "G1 Conc#0" [stack: 0x00000013faf00000,0x00000013fb000000] [id=19684]
+
+[error occurred during error reporting (printing all threads), id 0xc0000005, EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x00007ffab3b16017]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread:  ([mutex/lock_event])
+[0x000001b214eff780] Heap_lock - owner thread: 0x000001b214f03800
+
+Heap address: 0x000000070a000000, size: 3936 MB, Compressed Oops mode: Non-zero based: 0x000000070a000000
+Narrow klass base: 0x0000000000000000, Narrow klass shift: 0
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Classes redefined (0 events):
+No events
+
+Internal exceptions (0 events):
+No events
+
+Events (1 events):
+Event: 0.008 Loaded shared library D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\zip.dll
+
+
+Dynamic libraries:
+0x00007ff7d76d0000 - 0x00007ff7d76da000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\java.exe
+0x00007ffb277a0000 - 0x00007ffb279a9000 	C:\WINDOWS\SYSTEM32\ntdll.dll
+0x00007ffb26500000 - 0x00007ffb265bd000 	C:\WINDOWS\System32\KERNEL32.DLL
+0x00007ffb25240000 - 0x00007ffb255b4000 	C:\WINDOWS\System32\KERNELBASE.dll
+0x00007ffb25120000 - 0x00007ffb25231000 	C:\WINDOWS\System32\ucrtbase.dll
+0x00007ffb01fa0000 - 0x00007ffb01fb9000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\jli.dll
+0x00007ffb01f80000 - 0x00007ffb01f96000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\VCRUNTIME140.dll
+0x00007ffb265c0000 - 0x00007ffb2676c000 	C:\WINDOWS\System32\USER32.dll
+0x00007ffb250f0000 - 0x00007ffb25116000 	C:\WINDOWS\System32\win32u.dll
+0x00007ffb0d4e0000 - 0x00007ffb0d785000 	C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.22000.120_none_9d947278b86cc467\COMCTL32.dll
+0x00007ffb26cc0000 - 0x00007ffb26ce9000 	C:\WINDOWS\System32\GDI32.dll
+0x00007ffb25870000 - 0x00007ffb25913000 	C:\WINDOWS\System32\msvcrt.dll
+0x00007ffb24c90000 - 0x00007ffb24da2000 	C:\WINDOWS\System32\gdi32full.dll
+0x00007ffb24ee0000 - 0x00007ffb24f7d000 	C:\WINDOWS\System32\msvcp_win.dll
+0x00007ffb25990000 - 0x00007ffb259c1000 	C:\WINDOWS\System32\IMM32.DLL
+0x00007ffae28d0000 - 0x00007ffae297a000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\msvcp140.dll
+0x00007ffab3820000 - 0x00007ffab439b000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\server\jvm.dll
+0x00007ffb26ba0000 - 0x00007ffb26c4e000 	C:\WINDOWS\System32\ADVAPI32.dll
+0x00007ffb26a70000 - 0x00007ffb26b0e000 	C:\WINDOWS\System32\sechost.dll
+0x00007ffb25660000 - 0x00007ffb25780000 	C:\WINDOWS\System32\RPCRT4.dll
+0x00007ffb26cb0000 - 0x00007ffb26cb8000 	C:\WINDOWS\System32\PSAPI.DLL
+0x00007ffb19f80000 - 0x00007ffb19f8a000 	C:\WINDOWS\SYSTEM32\VERSION.dll
+0x00007ffb01990000 - 0x00007ffb01999000 	C:\WINDOWS\SYSTEM32\WSOCK32.dll
+0x00007ffb25ec0000 - 0x00007ffb25f2f000 	C:\WINDOWS\System32\WS2_32.dll
+0x00007ffb21970000 - 0x00007ffb219a3000 	C:\WINDOWS\SYSTEM32\WINMM.dll
+0x00007ffb23d50000 - 0x00007ffb23d68000 	C:\WINDOWS\SYSTEM32\kernel.appcore.dll
+0x00007ffb166a0000 - 0x00007ffb166b1000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\verify.dll
+0x00007ffb22470000 - 0x00007ffb22691000 	C:\WINDOWS\SYSTEM32\DBGHELP.DLL
+0x00007ffb15960000 - 0x00007ffb15991000 	C:\WINDOWS\SYSTEM32\dbgcore.DLL
+0x00007ffb255c0000 - 0x00007ffb2563f000 	C:\WINDOWS\System32\bcryptPrimitives.dll
+0x00007ffb16670000 - 0x00007ffb16699000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\java.dll
+0x00007ffb20200000 - 0x00007ffb2020b000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\jimage.dll
+0x00007ffb16650000 - 0x00007ffb16669000 	D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\zip.dll
+
+dbghelp: loaded successfully - version: 4.0.5 - missing functions: none
+symbol engine: initialized successfully - sym options: 0x614 - pdb path: .;D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin;C:\WINDOWS\SYSTEM32;C:\WINDOWS\WinSxS\amd64_microsoft.windows.common-controls_6595b64144ccf1df_6.0.22000.120_none_9d947278b86cc467;D:\EnglishStandardPath\IDE\JetBrains\apps\CLion\ch-0\221.5921.27\jbr\bin\server
+
+VM Arguments:
+java_command: git4idea.http.GitAskPassApp Username for 'https://github.com': 
+java_class_path (initial): D:/EnglishStandardPath/IDE/JetBrains/apps/CLion/ch-0/221.5921.27/plugins/git4idea/lib/git4idea-rt.jar;D:/EnglishStandardPath/IDE/JetBrains/apps/CLion/ch-0/221.5921.27/lib/externalProcess-rt.jar;D:/EnglishStandardPath/IDE/JetBrains/apps/CLion/ch-0/221.5921.27/lib/app.jar;D:/EnglishStandardPath/IDE/JetBrains/apps/CLion/ch-0/221.5921.27/lib/3rd-party-rt.jar
+Launcher Type: SUN_STANDARD
+
+[Global flags]
+     intx CICompilerCount                          = 12                                        {product} {ergonomic}
+     uint ConcGCThreads                            = 3                                         {product} {ergonomic}
+     uint G1ConcRefinementThreads                  = 13                                        {product} {ergonomic}
+   size_t G1HeapRegionSize                         = 1048576                                   {product} {ergonomic}
+    uintx GCDrainStackTargetSize                   = 64                                        {product} {ergonomic}
+   size_t InitialHeapSize                          = 257949696                                 {product} {ergonomic}
+   size_t MarkStackSize                            = 4194304                                   {product} {ergonomic}
+   size_t MaxHeapSize                              = 4127195136                                {product} {ergonomic}
+   size_t MinHeapDeltaBytes                        = 1048576                                   {product} {ergonomic}
+    uintx NonNMethodCodeHeapSize                   = 7594288                                {pd product} {ergonomic}
+    uintx NonProfiledCodeHeapSize                  = 122031976                              {pd product} {ergonomic}
+    uintx ProfiledCodeHeapSize                     = 122031976                              {pd product} {ergonomic}
+    uintx ReservedCodeCacheSize                    = 251658240                              {pd product} {ergonomic}
+     bool SegmentedCodeCache                       = true                                      {product} {ergonomic}
+     bool UseCompressedClassPointers               = true                                 {lp64_product} {ergonomic}
+     bool UseCompressedOops                        = true                                 {lp64_product} {ergonomic}
+     bool UseG1GC                                  = true                                      {product} {ergonomic}
+     bool UseLargePagesIndividualAllocation        = false                                  {pd product} {ergonomic}
+
+Logging:
+Log output configuration:
+ #0: stdout all=warning uptime,level,tags
+ #1: stderr all=off uptime,level,tags
+
+Environment Variables:
+JAVA_HOME=D:\EnglishStandardPath\DevelopEnvironment\jdks\jdk11
+CLASSPATH=.;D:\EnglishStandardPath\DevelopEnvironment\jdks\jdk11\lib
+PATH=D:\EnglishStandardPath\DevProgramsFile\Python\python39\Scripts\;D:\EnglishStandardPath\DevProgramsFile\Python\python39\;D:\EnglishStandardPath\DevelopEnvironment\tbb\latest\redist\intel64\vc_mt\;D:\EnglishStandardPath\DevelopEnvironment\tbb\latest\redist\ia32\vc_mt\;D:\EnglishStandardPath\DevelopEnvironment\compiler\latest\windows\redist\intel64_win\compiler;D:\EnglishStandardPath\DevelopEnvironment\compiler\latest\windows\redist\ia32_win\compiler;C:\Program Files\Daheng Imaging\GalaxySDK\GenICam\bin\Win64_x64;C:\Program Files\Daheng Imaging\GalaxySDK\APIDll\Win64;C:\Program Files\Daheng Imaging\GalaxySDK\GenICam\bin\Win32_i86;C:\Program Files\Daheng Imaging\GalaxySDK\APIDll\Win32;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;D:\EnglishStandardPath\DevelopEnvironment\MinGW64\bin;C:\Program Files\dotnet\;C:\Program Files\OpenSSH-Win64;C:\Program Files (x86)\dotnet\;C:\Program Files\nodejs\;C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;D:\EnglishStandardPath\MATLAB\bin;D:\EnglishStandardPath\texlive\2021\bin\win32;D:\EnglishStandardPath\texlive\2021\bin\win32;D:\EnglishStandardPath\DevelopEnvironment\jdks\jdk11\bin;D:\EnglishStandardPath\DevelopEnvironment\vcpkg\installed\x64-windows\bin;D:\Program Files\OpenSSL-Win64\bin\;C:\Program Files\Graphviz\bin;D:\EnglishStandardPath\DevelopEnvironment\chocolatey\lib\cunit\lib;D:\EnglishStandardPath\DevelopEnvironment\chocolatey\lib\tinyxml2\lib;D:\EnglishStandardPath\DevelopEnvironment\chocolatey\lib\log4cxx\lib;D:\EnglishStandardPath\DevelopEnvironment\chocolatey\lib\bullet\lib;C:\Program Files\usbipd-win\;D:\开发工具\JetBrains\apps\IDEA-U\ch-0\212.5284.40\plugins\maven\lib\maven3\bin;D:\EnglishStandardPath\DevelopEnvironment\Git\bin;C:\Users\YeCanming\.cargo\bin;D:\EnglishStandardPath\DevProgramsFile\Python\pypy3.9-v7.3.9-win64\Scripts;D:\EnglishStandardPath\DevProgra
+USERNAME=YeCanming
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 11 , 64 bit Build 22000 (10.0.22000.434)
+OS uptime: 0 days 16:43 hours
+Hyper-V role detected
+
+CPU:total 16 (initial active 16) (16 cores per cpu, 2 threads per core) family 23 model 96 stepping 1 microcode 0x0, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, avx, avx2, aes, clmul, mmxext, 3dnowpref, lzcnt, sse4a, ht, tsc, tscinvbit, tscinv, bmi1, bmi2, adx, sha, fma
+
+Memory: 4k page, system-wide physical 15741M (3986M free)
+TotalPageFile size 21034M (AvailPageFile size 202M)
+current process WorkingSet (physical memory assigned to process): 10M, peak: 10M
+current process commit charge ("private bytes"): 71M, peak: 317M
+
+vm_info: OpenJDK 64-Bit Server VM (11.0.15+10-b2043.56) for windows-amd64 JRE (11.0.15+10-b2043.56), built on May 16 2022 02:28:12 by "" with MS VC++ 14.0 (VS2015)
+
+END.

@@ -29,6 +29,7 @@ DISASM_TMP := target/$(TARGET)/$(RUSTC_MODE)/asm
 
 # 1.3 操作系统的基础执行环境：监督层二进制接口(Supervisor Binary Interface)的定义
 # 1.3.1 选用的SBI的名称，应当放置同名bin扩展名文件在bootloader文件夹下。可选参数，默认为qemu下模拟运行 rustsbi 。
+PAGE_MODE ?= is_16KiB
 BOARD ?= qemu
 # default
 SBI ?=rustsbi-$(BOARD)
@@ -85,8 +86,8 @@ kernel:
 	@#cd ../user && make build TEST=$(TEST)
 	@make -C ../user build TEST=$(TEST)
 	@$(echo) 平台为: $(BOARD)
-	@cp src/linker-$(BOARD).ld src/linker.ld
-	@cargo build $(CARGO_BUILD_MODE) --features "board_$(BOARD)"
+	@cp src/linker-$(BOARD)-$(PAGE_MODE).ld src/linker.ld
+	@cargo build $(CARGO_BUILD_MODE) --features "board_$(BOARD), $(PAGE_MODE)"
 	@rm src/linker.ld
 
 clean:

@@ -222,11 +222,11 @@ $ make run
 [KERN] rust_main() begin
 [KERN] clear_bss() begin
 [KERN] clear_bss() end
-[KERN] mm::init() begin
-[KERN] mm::init_heap() begin
-[KERN] mm::init_heap() end
-[KERN] mm::init_frame_allocator() begin
-[KERN] mm::frame_allocator::lazy_static!FRAME_ALLOCATOR begin
+[KERN] memory::init() begin
+[KERN] memory::init_heap() begin
+[KERN] memory::init_heap() end
+[KERN] memory::init_frame_allocator() begin
+[KERN] memory::frame_allocator::lazy_static!FRAME_ALLOCATOR begin
 ......
 ```
 
