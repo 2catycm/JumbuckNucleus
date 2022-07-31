@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 buddy_system_allocator = {path="../crates/buddy_system_allocator"}
+#rand = "0.3.17"
 
 [profile.release]
 debug = true
