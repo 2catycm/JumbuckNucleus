@@ -29,6 +29,9 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Memory management implementation</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! SV39 page-based virtual-memory architecture for RV64 systems, and</span>
@@ -49,11 +52,14 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">memory_set</span>::{<span class="ident">MapPermission</span>, <span class="ident">MemorySet</span>, <span class="ident">KERNEL_SPACE</span>};
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">page_table</span>::{<span class="ident">translated_byte_buffer</span>, <span class="ident">translated_refmut</span>, <span class="ident">translated_str</span>, <span class="ident">PageTableEntry</span>};
 <span class="kw">use</span> <span class="ident">page_table</span>::{<span class="ident">PTEFlags</span>, <span class="ident">PageTable</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::mm::frame_allocator::get_remain_frame_cnt</span>;
+
 <span class="doccomment">/// initiate heap allocator, frame allocator and kernel space</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init</span>() {
     <span class="ident">heap_allocator::init_heap</span>();
     <span class="ident">frame_allocator::init_frame_allocator</span>();
     <span class="ident">KERNEL_SPACE</span>.<span class="ident">exclusive_access</span>().<span class="ident">activate</span>();
+    <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">get_remain_frame_cnt</span>());
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="jumbuck_nucleus" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (1f7fb6413 2022-04-10)" ></div>

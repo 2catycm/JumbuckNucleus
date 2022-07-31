@@ -137,6 +137,15 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Implementation of [`FrameAllocator`] which</span>
 <span class="doccomment">//! controls all the frames in the operating system.</span>
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">PhysAddr</span>, <span class="ident">PhysPageNum</span>};
@@ -180,6 +189,7 @@
     <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span>;
     <span class="kw">fn</span> <span class="ident">alloc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">PhysPageNum</span><span class="op">&gt;</span>;
     <span class="kw">fn</span> <span class="ident">dealloc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ppn</span>: <span class="ident">PhysPageNum</span>);
+    <span class="kw">fn</span> <span class="ident">get_remain_frame_cnt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>)-&gt;<span class="ident">usize</span>;
 }
 <span class="doccomment">/// an implementation for frame allocator</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StackFrameAllocator</span> {
@@ -192,7 +202,8 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">l</span>: <span class="ident">PhysPageNum</span>, <span class="ident">r</span>: <span class="ident">PhysPageNum</span>) {
         <span class="self">self</span>.<span class="ident">current</span> <span class="op">=</span> <span class="ident">l</span>.<span class="number">0</span>;
         <span class="self">self</span>.<span class="ident">end</span> <span class="op">=</span> <span class="ident">r</span>.<span class="number">0</span>;
-        <span class="macro">println!</span>(<span class="string">&quot;last {} Physical Frames.&quot;</span>, <span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">current</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;可用的物理页数：{}&quot;</span>, <span class="self">self</span>.<span class="ident">get_remain_frame_cnt</span>());
+        <span class="macro">assert_eq!</span>(<span class="self">self</span>.<span class="ident">get_remain_frame_cnt</span>(), <span class="self">self</span>.<span class="ident">end</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">current</span>);
     }
 }
 <span class="kw">impl</span> <span class="ident">FrameAllocator</span> <span class="kw">for</span> <span class="ident">StackFrameAllocator</span> {
@@ -221,6 +232,10 @@
         }
         <span class="comment">// recycle</span>
         <span class="self">self</span>.<span class="ident">recycled</span>.<span class="ident">push</span>(<span class="ident">ppn</span>);
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_remain_frame_cnt</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>)-&gt;<span class="ident">usize</span> {
+        (<span class="self">self</span>.<span class="ident">end</span><span class="op">-</span><span class="self">self</span>.<span class="ident">current</span>)<span class="op">+</span><span class="self">self</span>.<span class="ident">recycled</span>.<span class="ident">len</span>()
     }
 }
 
@@ -253,6 +268,9 @@
     <span class="ident">FRAME_ALLOCATOR</span>.<span class="ident">exclusive_access</span>().<span class="ident">dealloc</span>(<span class="ident">ppn</span>);
 }
 
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_remain_frame_cnt</span>()-&gt;<span class="ident">usize</span>{
+    <span class="ident">FRAME_ALLOCATOR</span>.<span class="ident">exclusive_access</span>().<span class="ident">get_remain_frame_cnt</span>()
+}
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
 <span class="doccomment">/// a simple test for frame allocator</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">frame_allocator_test</span>() {

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["print",""]],"struct":[["Stdout",""]]});
+initSidebarItems({"fn":[["clear_console","清空控制台"],["close_console_effects","清除控制台效果"],["open_blue_print","开启蓝屏"],["print","打印由 [`core::format_args!`] 格式化后的数据。"]],"struct":[["Stdout","一个 [Zero-sized Type], 实现 [`core::fmt::Write`] trait 来进行格式化输出。"]]});
