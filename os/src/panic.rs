@@ -46,7 +46,7 @@ mod u8array {
         }
     }
 }
-/// 打印 panic 信息并 [`crate::shutdown`].
+/// 打印 panic 信息并 [`sbi::shutdown`].
 ///
 /// ### '#[panic_handler]' 属性
 /// 声明此函数是 panic 的回调。

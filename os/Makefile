@@ -139,7 +139,7 @@ check:
 	@cargo check
 doc:
 	@cargo doc --document-private-items --open
-# 测试 makefile 语法
+# 测试 软件工程 语法
 test_makefile_can_sub_var ?= 10
 test_makefile_can_sub:
 	echo "Greeting from sub makefile! "

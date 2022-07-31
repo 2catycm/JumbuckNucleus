@@ -1,4 +1,4 @@
-use super::FrameAllocatorAlgorithm;
+use super::ContinuousStorageAllocationAlgorithm;
 use alloc::vec::Vec;
 /// an implementation for frame allocator
 pub struct StackAllocator {
@@ -6,20 +6,20 @@ pub struct StackAllocator {
     end: usize,
     recycled: Vec<usize>, //存的是physical page number。 Vec是作为一个自动扩容栈来使用的。
 }
-impl FrameAllocatorAlgorithm for StackAllocator {
-    fn init(&mut self, l: usize, r: usize) {
-        self.current = l;
-        self.end = r;
-        log::info!("可用的物理页数：{}", self.get_remain_frame_cnt());
-        assert_eq!(self.get_remain_frame_cnt(), self.end - self.current);
-    }
-
+impl ContinuousStorageAllocationAlgorithm for StackAllocator {
     fn new() -> Self {
         Self {
             current: 0,
             end: 0,
             recycled: Vec::new(),
         }
+    }
+
+    fn init(&mut self, l: usize, r: usize) {
+        self.current = l;
+        self.end = r;
+        log::info!("可用的物理页数：{}", self.get_remain_frame_cnt());
+        assert_eq!(self.get_remain_frame_cnt(), self.end - self.current);
     }
     fn alloc(&mut self, count: usize) -> Option<usize> {
         if count != 1 {
