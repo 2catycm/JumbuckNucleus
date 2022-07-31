@@ -76,6 +76,8 @@ fn frame_dealloc(ppn: PhysPageNum) {
 pub fn get_remain_frame_cnt() -> usize {
     FRAME_ALLOCATOR.exclusive_access().get_remain_frame_cnt()
 }
+
+
 #[allow(unused)]
 /// a simple test for frame allocator
 pub fn frame_allocator_test() {

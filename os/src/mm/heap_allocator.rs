@@ -9,7 +9,7 @@ static HEAP_ALLOCATOR: LockedHeap<32> = LockedHeap::empty();
 #[alloc_error_handler]
 /// panic when heap allocation error occurs
 pub fn handle_alloc_error(layout: core::alloc::Layout) -> ! {
-    panic!("Heap allocation error, layout = {:?}", layout);
+    panic!("绵羊核心堆内存申请异常，可能存在内存泄露！{:?}", layout);
 }
 /// heap space ([u8; KERNEL_HEAP_SIZE])
 static mut HEAP_SPACE: [u8; KERNEL_HEAP_SIZE] = [0; KERNEL_HEAP_SIZE]; //数组

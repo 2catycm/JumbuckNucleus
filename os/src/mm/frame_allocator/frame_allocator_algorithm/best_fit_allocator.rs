@@ -2,14 +2,14 @@ use super::ContinuousStorageAllocationAlgorithm;
 // use alloc::collections::linked_list::LinkedList;
 use alloc::collections::vec_deque::VecDeque;
 
-pub struct WorseFitAllocator {
+pub struct BestFitAllocator {
     captains: VecDeque<(usize, usize)>,
     // 一些统计数据
     allocated: usize,
     total: usize,
 }
 
-impl ContinuousStorageAllocationAlgorithm for WorseFitAllocator {
+impl ContinuousStorageAllocationAlgorithm for BestFitAllocator {
     fn new() -> Self {
         Self {
             captains: VecDeque::new(),
@@ -27,16 +27,16 @@ impl ContinuousStorageAllocationAlgorithm for WorseFitAllocator {
     }
 
     fn alloc(&mut self, count: usize) -> Option<usize> {
-        let mut max_diff = usize::MIN;
-        let mut arg_max:Option<usize> = None;
+        let mut min_diff = usize::MAX;
+        let mut arg_min:Option<usize> = None;
         for i in 0..self.captains.len(){
             let (allocated_frame, troop_size) = self.captains[i];
             if troop_size > count{
                 log::debug!("{:?} 队长是申请{}空间的一个选择", self.captains[i], count);
                 let diff = troop_size-count;
-                if diff>max_diff{
-                    max_diff = diff;
-                    arg_max = Some(i);
+                if diff<min_diff{
+                    min_diff = diff;
+                    arg_min = Some(i);
                 }
             }else if troop_size==count{
                 //提前结束，这就是最好的。
@@ -46,12 +46,12 @@ impl ContinuousStorageAllocationAlgorithm for WorseFitAllocator {
                 return Some(allocated_frame);
             }
         }
-        if let Some(arg_max) = arg_max {
-            log::debug!("{:?} 队长是申请{}空间的 best fit 选择", self.captains[arg_max], count);
-            let allocated_frame = self.captains[arg_max].0;
-            self.captains[arg_max].0 += count;
-            self.captains[arg_max].1 -= count;
-            log::debug!("队伍状态变更为{:?}", self.captains[arg_max]);
+        if let Some(arg_min) = arg_min{
+            log::debug!("{:?} 队长是申请{}空间的 best fit 选择", self.captains[arg_min], count);
+            let allocated_frame = self.captains[arg_min].0;
+            self.captains[arg_min].0 += count;
+            self.captains[arg_min].1 -= count;
+            log::debug!("队伍状态变更为{:?}", self.captains[arg_min]);
             return Some(allocated_frame);
         }else {
             log::warn!("无法找到合适的连续空间！");
@@ -65,7 +65,7 @@ impl ContinuousStorageAllocationAlgorithm for WorseFitAllocator {
             let (start, troop_size) = self.captains[i];
             assert_ne!(start, frame);
             if start>frame{ //前面一直都是比frame小的。现在比它大，所以插在前面。
-            log::debug!("{:?} 队长的左边可以释放({}, {})", self.captains[i], frame, count);
+                log::debug!("{:?} 队长的左边可以释放({}, {})", self.captains[i], frame, count);
                 assert!(frame+count<=start); //不应当overlap
                 //试图合并
                 //可以不合并，但是算法就不完备。
