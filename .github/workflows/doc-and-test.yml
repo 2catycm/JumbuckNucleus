@@ -47,16 +47,9 @@ jobs:
           key: ${{ runner.os }}-qemu-bin
       - name: Install QEMU
         run: |
-          sudo apt-get update
-          sudo apt-get install ninja-build -y
-          if [ ! -d qemu-bin ]; then
-             git clone https://github.com/2catycm/qemu-bin.git qemu-bin
-             cd qemu-bin
-          else
-            cd qemu-bin
-          fi
+          git clone https://github.com/2catycm/qemu-bin.git qemu-bin
+          cd qemu-bin
           export PATH=$PATH:${pwd}/qemu-7.0-16Ki
-          
           qemu-system-riscv64 --version
 
       - name: Run usertests
