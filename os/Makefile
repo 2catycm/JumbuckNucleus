@@ -37,7 +37,8 @@ DISASM ?= -x
 # Run usertests or usershell
 TEST ?=
 
-build: env switch-check $(KERNEL_BIN)
+#build: env switch-check $(KERNEL_BIN)
+build: $(KERNEL_BIN)
 
 switch-check:
 ifeq ($(BOARD), qemu)
