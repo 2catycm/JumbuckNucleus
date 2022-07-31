@@ -49,6 +49,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt-get install git curl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0
+          git submodule update --recursive
           cd qemu-bin
           export PATH=$PATH:$(pwd)/qemu-7.0-16Ki
           qemu-system-riscv64 --version
