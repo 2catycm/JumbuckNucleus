@@ -41,6 +41,7 @@ trait FrameAllocator {
     fn new() -> Self;
     fn alloc(&mut self) -> Option<PhysPageNum>;
     fn dealloc(&mut self, ppn: PhysPageNum);
+    fn get_remain_frame_cnt(&mut self)->usize;
 }
 /// an implementation for frame allocator
 pub struct StackFrameAllocator {
@@ -53,7 +54,8 @@ impl StackFrameAllocator {
     pub fn init(&mut self, l: PhysPageNum, r: PhysPageNum) {
         self.current = l.0;
         self.end = r.0;
-        println!("last {} Physical Frames.", self.end - self.current);
+        println!("可用的物理页数：{}", self.get_remain_frame_cnt());
+        assert_eq!(self.get_remain_frame_cnt(), self.end - self.current);
     }
 }
 impl FrameAllocator for StackFrameAllocator {
@@ -82,6 +84,10 @@ impl FrameAllocator for StackFrameAllocator {
         }
         // recycle
         self.recycled.push(ppn);
+    }
+
+    fn get_remain_frame_cnt(&mut self)->usize {
+        (self.end-self.current)+self.recycled.len()
     }
 }
 
@@ -114,6 +120,9 @@ fn frame_dealloc(ppn: PhysPageNum) {
     FRAME_ALLOCATOR.exclusive_access().dealloc(ppn);
 }
 
+pub fn get_remain_frame_cnt()->usize{
+    FRAME_ALLOCATOR.exclusive_access().get_remain_frame_cnt()
+}
 #[allow(unused)]
 /// a simple test for frame allocator
 pub fn frame_allocator_test() {

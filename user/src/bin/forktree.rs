@@ -6,7 +6,8 @@ extern crate user_lib;
 
 use user_lib::{exit, fork, getpid, sleep, yield_};
 
-const DEPTH: usize = 4;
+// const DEPTH: usize = 4;
+const DEPTH: usize = 3;
 
 fn fork_child(cur: &str, branch: char) {
     let mut next = [0u8; DEPTH + 1];

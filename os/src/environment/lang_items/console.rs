@@ -11,7 +11,9 @@
 //! [`write_str`]: core::fmt::Write::write_str
 //! [`write_fmt`]: core::fmt::Write::write_fmt
 #![allow(unused)]
-use crate::sbi::*;
+
+use crate::environment::sbi::sbi;
+use crate::environment::lang_items;
 use core::fmt::{self, Write};
 
 /// 一个 [Zero-sized Type], 实现 [`core::fmt::Write`] trait 来进行格式化输出。
@@ -24,7 +26,7 @@ impl Write for Stdout {
     /// 想要正确地输出一个非 ASCII 字符，需要将其转义成一个 utf-8 序列并逐个进行输出。
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for &b in s.as_bytes() {
-            console_putchar(b.into());
+            sbi::console_putchar(b.into());
         }
         Ok(())
     }
@@ -46,7 +48,7 @@ pub fn print(args: fmt::Arguments) {
 #[macro_export]
 macro_rules! print {
     ($fmt: literal $(, $($args: tt)+)?) => {
-        $crate::console::print(format_args!($fmt $(, $($args)+)?));
+        $print(format_args!($fmt $(, $($args)+)?));
     }
 }
 
@@ -57,7 +59,7 @@ macro_rules! println {
         $crate::print!("\n")  //如果是空的，没有参数，那么调用上面的print打出一行。
     };
     ($fmt: literal $(, $($arg: tt)+)?) => {
-        $crate::console::print(format_args!(concat!($fmt, "\n") $(, $($arg)+)?))
+        $print(format_args!(concat!($fmt, "\n") $(, $($arg)+)?))
     }
 }
 
@@ -65,7 +67,7 @@ macro_rules! println {
 #[macro_export]
 macro_rules! eprint {
     ($fmt: literal $(, $($arg: tt)+)?) => {
-        $crate::console::print(format_args!(concat!(concat!("{}", $fmt), "{}"),
+        $print(format_args!(concat!(concat!("{}", $fmt), "{}"),
         "\x1b[1;31m" $(, $($arg)+)? , "\x1b[0m"))
     }
 }
@@ -74,10 +76,10 @@ macro_rules! eprint {
 #[macro_export]
 macro_rules! eprintln {
     () => {
-        $crate::eprint!("\n")  //如果是空的，没有参数，那么调用上面的eprint打出一行。
+        $eprint!("\n")  //如果是空的，没有参数，那么调用上面的eprint打出一行。
     };
     ($fmt: literal $(, $($arg: tt)+)?) => {
-        $crate::console::print(format_args!(concat!(concat!("{}", concat!($fmt, "\n")), "{}"),
+        $print(format_args!(concat!(concat!("{}", concat!($fmt, "\n")), "{}"),
         "\x1b[1;31m" $(, $($arg)+)? , "\x1b[0m"))
     }
 }

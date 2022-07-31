@@ -11,6 +11,7 @@ use alloc::vec::Vec;
 use core::arch::asm;
 use lazy_static::*;
 use riscv::register::satp;
+use crate::mm::frame_allocator::{get_remain_frame_cnt};
 
 extern "C" {
     fn stext();
@@ -314,9 +315,13 @@ impl MapArea {
                 ppn = PhysPageNum(vpn.0);
             }
             MapType::Framed => {
-                let frame = frame_alloc().unwrap();
-                ppn = frame.ppn;
-                self.data_frames.insert(vpn, frame);
+                if let Some(frame) = frame_alloc(){
+                    ppn = frame.ppn;
+                    self.data_frames.insert(vpn, frame);
+                }else {
+                    panic!("绵羊核心 物理页 分配异常！剩余页数: {}", get_remain_frame_cnt());
+                }
+                // let frame = frame_alloc().unwrap();
             }
         }
         let pte_flags = PTEFlags::from_bits(self.map_perm.bits).unwrap();

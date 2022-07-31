@@ -1,22 +1,20 @@
-//! The main module and entrypoint
+//! # 绵羊核心操作系统（OS）
+//! 1. 内核的代码从`entry.asm`开始，然后 [`rust_main()`] 被调用、
 //!
-//! Various facilities of the kernels are implemented as submodules. The most
-//! important ones are:
+//! 2. 重要的OS子功能在子模块当中实现。 我们通过初始化子模块，
+//! - 启动了操作系统的基本功能。
+//! - 对操作系统的功能进行自检。
 //!
-//! - [`trap`]: Handles all cases of switching from userspace to the kernel
-//! - [`task`]: Task management
-//! - [`syscall`]: System call handling and implementation
-//! - [`mm`]: Address map using SV39
-//! - [`sync`]:Wrap a static data structure inside it so that we are able to access it without any `unsafe`.
+//! 这些子模块是：
 //!
-//! The operating system also starts in this module. Kernel code starts
-//! executing from `entry.asm`, after which [`rust_main()`] is called to
-//! initialize various pieces of functionality. (See its source code for
-//! details.)
+//! - [`trap`]: 处理从用户态转移到内核态的三种异常情况（异常、系统调用、中断）
 //!
-//! We then call [`task::run_tasks()`] and for the first time go to
-//! userspace.
-
+//! - [`task`]:  任务（进程）管理。
+//! - [`syscall`]: 系统调用的接管
+//!
+//! - [`mm`]:  基于 SV39 的内存管理方案
+//! - [`sync`]:  UPSafeCell 声明在单进程下访问为安全，避免 unsafe 块的使用。
+//! 3. 当操作系统初始化完毕后，我们使用[`task::run_tasks()`]运行用户进程，进入受限直接执行的进程管理。
 #![deny(missing_docs)]
 #![deny(warnings)]
 #![no_std]
@@ -69,9 +67,8 @@ fn clear_bss() {
 #[no_mangle]
 /// the rust entry-point of os
 pub fn rust_main() -> ! {
-    println!("[kernel] Hello, world!");
     clear_bss();
-    println!("[kernel] Hello, world!");
+    println!("欢迎来到，绵羊核心。");
     mm::init();
 
     mm::remap_test();

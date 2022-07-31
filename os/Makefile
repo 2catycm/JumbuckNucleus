@@ -82,7 +82,8 @@ $(KERNEL_BIN): kernel
 	@$(echo) "成功构建 $(KERNEL_BIN)"
 
 kernel:
-	@cd ../user && make build TEST=$(TEST)
+	@#cd ../user && make build TEST=$(TEST)
+	@make -C ../user build TEST=$(TEST)
 	@$(echo) 平台为: $(BOARD)
 	@cp src/linker-$(BOARD).ld src/linker.ld
 	@cargo build $(CARGO_BUILD_MODE) --features "board_$(BOARD)"
