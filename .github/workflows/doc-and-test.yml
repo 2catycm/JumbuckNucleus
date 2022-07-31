@@ -46,7 +46,7 @@ jobs:
 #          path: qemu-7.0.0
 #          key: qemu-7.0.0-x86_64-riscv64
           path: qemu-bin
-          key: qemu-bin-x86_64-riscv64
+          key: ${{ runner.os }}-qemu-bin
       - name: Install QEMU
         run: |
           sudo apt-get update
