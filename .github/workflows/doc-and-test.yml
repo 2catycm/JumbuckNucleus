@@ -49,14 +49,21 @@ jobs:
         run: |
           sudo apt update
           sudo apt-get install git curl libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0
-          git clone https://github.com/2catycm/qemu-bin.git qemu-bin
           cd qemu-bin
           export PATH=$PATH:$(pwd)/qemu-7.0-16Ki
           qemu-system-riscv64 --version
 
       - name: Run usertests
-        run: cd os && make run TEST=1
+        run: |
+          cd qemu-bin
+          export PATH=$PATH:$(pwd)/qemu-7.0-16Ki
+          cd ..
+          cd os && make run TEST=1
         timeout-minutes: 10
 
       - name: Build for k210
-        run: cd os && make build BOARD=k210
+        run: |
+          cd qemu-bin
+          export PATH=$PATH:$(pwd)/qemu-7.0-16Ki
+          cd ..
+          cd os && make build BOARD=k210
