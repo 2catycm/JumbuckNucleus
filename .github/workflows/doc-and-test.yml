@@ -44,7 +44,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: qemu-7.0.0
-          key: qemu-7.0.0-x86_64-riscv64
+          key: qemu-7.0.0-x86_64-riscv64-bin
       - name: Install QEMU
         run: |
           sudo apt-get update
