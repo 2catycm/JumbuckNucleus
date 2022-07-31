@@ -20,6 +20,9 @@ pub use memory_set::{MapPermission, MemorySet, KERNEL_SPACE};
 pub use page_table::{translated_byte_buffer, translated_refmut, translated_str, PageTableEntry};
 use page_table::{PTEFlags, PageTable};
 
+//测试用的函数，可以在外面调用
+pub use heap_allocator::{test_heap, test_panic_when_heap_space_not_enough};
+
 /// initiate heap allocator, frame allocator and kernel space
 pub fn init() {
     heap_allocator::init_heap();

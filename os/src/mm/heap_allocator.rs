@@ -21,9 +21,9 @@ pub fn init_heap() {
             .init(HEAP_SPACE.as_ptr() as usize, KERNEL_HEAP_SIZE);
     }
 }
-
+/// 测试堆分配器是否正确工作
 #[allow(unused)]
-pub fn heap_test() {
+pub fn test_heap() {
     use alloc::boxed::Box;
     use alloc::vec::Vec;
     extern "C" {
@@ -44,5 +44,21 @@ pub fn heap_test() {
     }
     assert!(bss_range.contains(&(v.as_ptr() as usize)));
     drop(v);
-    println!("heap_test passed!");
+    log::info!("堆测试通过！");
+}
+
+///通过堆上使用过多内存，让系统奔溃
+#[allow(unused)]
+pub fn test_panic_when_heap_space_not_enough() {
+    log::warn!("正在执行崩溃测试，接下来操作系统应当崩溃并且关机，而不是死机。");
+    {
+        for i in 0..100000000 {
+            use alloc::boxed::Box;
+            let t = Box::new(3);
+            if i % 100000 == 0 {
+                log::info!("正在访问物理地址 {:p}", t.as_ref());
+            }
+            core::mem::forget(t);
+        }
+    }
 }

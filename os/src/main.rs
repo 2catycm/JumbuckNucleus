@@ -73,6 +73,7 @@ pub fn rust_main() -> ! {
     sheep_logger::set_level(log::LevelFilter::Info);
     log::info!("欢迎来到，绵羊核心。");
     mm::init();
+    mm::test_panic_when_heap_space_not_enough();
     mm::remap_test();
     task::add_initproc();
     log::info!("成功加载 init 进程。");
