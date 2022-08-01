@@ -7,16 +7,16 @@
 //!
 //! 这些子模块是：
 //!
-//! - [`trap`]: 处理从用户态转移到内核态的三种异常情况（异常、系统调用、中断）
+//! - [`trap`] : 处理从用户态转移到内核态的三种异常情况（异常、系统调用、中断）
 //!
-//! - [`task`]:  任务（进程）管理。
-//! - [`syscall`]: 系统调用的接管
+//! - [`task`] :  任务（进程）管理。
+//! - [`syscall`] : 系统调用的接管
 //!
 //! - [`memory`]:  基于 SV39 的内存管理方案
 //! - [`sync`]:  UPSafeCell 声明在单进程下访问为安全，避免 unsafe 块的使用。
 //! 3. 当操作系统初始化完毕后，我们使用[`task::run_tasks()`]运行用户进程，进入受限直接执行的进程管理。
-#![deny(missing_docs)]
-#![deny(warnings)]
+// #![deny(missing_docs)]
+// #![deny(warnings)]
 #![no_std]
 #![no_main]
 #![feature(panic_info_message)]
@@ -75,11 +75,11 @@ fn clear_bss() {
 pub fn rust_main() -> ! {
     clear_bss();
     sheep_logger::init().expect("日志管理器加载失败！");
-    // sheep_logger::set_level(log::LevelFilter::Debug);
-    sheep_logger::set_level(log::LevelFilter::Info);
+    sheep_logger::set_level(log::LevelFilter::Debug);
+    // sheep_logger::set_level(log::LevelFilter::Info);
     log::info!("欢迎来到，绵羊核心。");
     memory::init();
-    // memory::test_panic_when_heap_space_not_enough();
+    memory::test_panic_when_heap_space_not_enough();
     memory::test_heap();
     memory::test_frame_allocator();
     memory::remap_test();

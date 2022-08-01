@@ -27,8 +27,8 @@ mod first_fit_allocator;
 mod best_fit_allocator;
 mod worse_fit_allocator;
 // type ContinuousStorageAllocationAlgorithmImpl = stack_allocator::StackAllocator;
-type ContinuousStorageAllocationAlgorithmImpl = buddy_system_allocator::BuddySystemAllocator;
-// type ContinuousStorageAllocationAlgorithmImpl = first_fit_allocator::FirstFitAllocator;
+// type ContinuousStorageAllocationAlgorithmImpl = buddy_system_allocator::BuddySystemAllocator;
+type ContinuousStorageAllocationAlgorithmImpl = first_fit_allocator::FirstFitAllocator;
 // type ContinuousStorageAllocationAlgorithmImpl = best_fit_allocator::BestFitAllocator;
 // type ContinuousStorageAllocationAlgorithmImpl = worse_fit_allocator::WorseFitAllocator;
 
