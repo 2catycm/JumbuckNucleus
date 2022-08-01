@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["best_fit_allocator",""],["buddy_system_allocator",""],["first_fit_allocator",""],["stack_allocator",""],["worse_fit_allocator",""]],"struct":[["FrameAllocatorImpl","使用具体的连续分配算法实现物理帧分配算法。"]],"trait":[["ContinuousStorageAllocationAlgorithm","连续分配算法的接口"]],"type":[["ContinuousStorageAllocationAlgorithmImpl",""]]});

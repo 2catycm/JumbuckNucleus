@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StackAllocator","an implementation for frame allocator"]]});

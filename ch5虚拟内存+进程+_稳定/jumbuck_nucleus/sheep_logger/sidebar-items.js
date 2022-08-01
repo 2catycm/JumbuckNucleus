@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["LogColor",""]],"fn":[["init",""],["set_level",""],["test_can_run",""]],"static":[["LOGGER",""]],"struct":[["SheepLogger","Implements [`Log`]."]]});

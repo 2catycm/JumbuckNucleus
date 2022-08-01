@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["jumbuck_nucleus"] = [{"text":"impl <a class=\"trait\" href=\"https://docs.rs/log/0.4.17/log/trait.Log.html\" title=\"trait log::Log\">Log</a> for <a class=\"struct\" href=\"jumbuck_nucleus/sheep_logger/struct.SheepLogger.html\" title=\"struct jumbuck_nucleus::sheep_logger::SheepLogger\">SheepLogger</a>","synthetic":false,"types":["jumbuck_nucleus::sheep_logger::SheepLogger"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
