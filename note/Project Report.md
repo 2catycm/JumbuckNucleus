@@ -23,6 +23,8 @@
 
 持续集成测试：[feat(os): 最新版本 · 2catycm/JumbuckNucleus@896c3a7 (github.com)](https://github.com/2catycm/JumbuckNucleus/actions/runs/2775806152)
 
+参考仓库： [rCore-Tutorial-Book-v3 3.6.0-alpha.1 文档 (rcore-os.cn)](http://rcore-os.cn/rCore-Tutorial-Book-v3/index.html)
+
 ### 为什么页面大小选择为16KiB，而不是传统甚至是默认的4KiB？
 
 内存的容量近年来不断发展，容量较大，然而分页方案的页面大小，仍然是上个世纪1960年代就使用的4KiB大小。[^8]那么，基于16KiB页面的OS有什么优势呢？在做这次Project的之前和过程中，我们需要理解16KiB操作系统的具体优势，这样才能达到Project的效果与目的；否则，就只是做了任务要求而已。
@@ -233,7 +235,19 @@ Rust 和C++语言一样，提供了“零开销”的抽象。我们用Rust写�
 
 ### 16KiB下的QEMU
 
-我们修改了QEMU中关于分页的部分。
+我们修改了QEMU中关于分页的部分, 为了简单起见，shi
+
+```c
+// cpu_bits.h
+/* Leaf page shift amount */
+// #define PGSHIFT             12
+#define PGSHIFT             (10+4) //16KiB
+// cpu-param.hs
+// #define TARGET_PAGE_BITS 12 /* 4 KiB Pages */
+#define TARGET_PAGE_BITS (10+4) /* 4 KiB Pages */
+```
+
+
 
 我们QEMU编译的效果放在了[2catycm/qemu-bin (github.com)](https://github.com/2catycm/qemu-bin)![image-20220801225340930](Project Report.assets\image-20220801225340930.png)
 
@@ -302,6 +316,123 @@ Qemu支持
 #### best\first\worst
 
 #### buddy system
+
+buddy system我们参考了[buddy_system_allocator - Rust (docs.rs)](https://docs.rs/buddy_system_allocator/0.8.0/buddy_system_allocator/index.html)的实现，并没有做太多修改，只是
+
+```rust
+use super::ContinuousStorageAllocationAlgorithm;
+use alloc::collections::btree_set::BTreeSet;
+use core::cmp::min;
+use core::mem::size_of;
+
+/// # 兄弟齐心系统分配器
+/// 一个使用伙伴系统(buddy system)策略的动态连续存储资源分配器(dynamic continuous storage resource allocator)。
+/// 常用于操作系统(作为硬件资源的管理器)管理启动堆内存、物理内存、虚拟内存的连续存储分配。
+pub struct BuddySystemAllocator {
+    // 32个平衡二叉树有序集。保存的是32种不同大小的页面的32棵树表示的空闲列表。
+    free_list: [BTreeSet<usize>; 32],
+    // 一些统计数据
+    allocated: usize,
+    total: usize,
+}
+
+impl ContinuousStorageAllocationAlgorithm for BuddySystemAllocator {
+    /// 使用默认构造函数初始化数组。
+    fn new() -> Self {
+        Self {
+            free_list: Default::default(),
+            allocated: 0,
+            total: 0,
+        }
+    }
+
+    fn init(&mut self, start: usize, end: usize) {
+        assert!(start<=end);
+        let mut total = 0; //一共成功获得了多少个页面。
+        let mut current_start = start;
+        while current_start < end {
+            let low_bit = if current_start > 0 {
+                current_start & (!current_start + 1) //树状数组中应当管辖的数量。就是取得了自己第一个low_bit 的大小。比如 low_bit(8) = 1000 low_bit(6) = 10
+            } else {
+                32
+            };
+            let size = min(low_bit, prev_power_of_two(end - current_start));
+            total += size;
+            // trailing_zeros()是结尾有多少个0.
+            self.free_list[size.trailing_zeros() as usize].insert(current_start);
+            current_start += size;
+        }
+        self.total += total;
+        log::info!("兄弟齐心系统分配器启动成功！当前空闲物理页帧的数量为{}", self.get_remain_frame_cnt())
+    }
+
+    fn alloc(&mut self, count: usize) -> Option<usize> {
+        let size = count.next_power_of_two();       // 比size大的第一个2的幂
+        let class = size.trailing_zeros() as usize; // 比如申请的 count 是3， 那么class是2
+        for i in class..self.free_list.len() {
+            // Find the first non-empty size class, 找到之后，外循环不会继续找。 比如申请3， 内存一共有8，一开始找到了8， i=3
+            if !self.free_list[i].is_empty() {
+                // Split buffers  从高到低，按照 buddy 进行分裂。 比如从 j = 3 到 2+1
+                for j in (class + 1..i + 1).rev() {
+                    if let Some(block_ref) = self.free_list[j].iter().next() { //因为非空，基本都是这里
+                        let block = *block_ref;
+                        self.free_list[j - 1].insert(block + (1 << (j - 1))); // 中间的大小
+                        self.free_list[j - 1].insert(block);
+                        self.free_list[j].remove(&block);
+                    } else {
+                        return None;
+                    }
+                }
+
+                let result = self.free_list[class].iter().next().clone();
+                if let Some(result_ref) = result {
+                    let result = *result_ref;
+                    self.free_list[class].remove(&result);
+                    self.allocated += size;
+                    return Some(result);
+                } else {
+                    return None;
+                }
+            }
+        }
+        None
+    }
+
+    fn dealloc(&mut self, frame: usize, count: usize) {
+        let size = count.next_power_of_two();
+        let class = size.trailing_zeros() as usize;
+
+        // Merge free buddy lists
+        let mut current_ptr = frame;
+        let mut current_class = class;
+        while current_class < self.free_list.len() {
+            let buddy = current_ptr ^ (1 << current_class);
+            if self.free_list[current_class].remove(&buddy) == true {
+                // Free buddy found
+                current_ptr = min(current_ptr, buddy);
+                current_class += 1;
+            } else {
+                self.free_list[current_class].insert(current_ptr);
+                break;
+            }
+        }
+
+        self.allocated -= size;
+    }
+
+    fn get_remain_frame_cnt(&mut self) -> usize {
+        self.total-self.allocated
+    }
+}
+
+///
+fn prev_power_of_two(num: usize) -> usize {
+    // leading_zeros是说这个数字前面有多少个0.
+    1 << (8 * (size_of::<usize>()) - num.leading_zeros() as usize - 1)
+}
+```
+
+
 
 ## 实现多道程序、分时多任务与进程。
 
