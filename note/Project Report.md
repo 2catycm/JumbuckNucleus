@@ -17,7 +17,7 @@
 
 ### git 仓库管理
 
-本文档的完整最新pdf版[JumbuckNucleus/Project Report.pdf at ch5虚拟内存+进程+_稳定 · 2catycm/JumbuckNucleus (github.com)](https://github.com/2catycm/JumbuckNucleus/blob/ch5虚拟内存%2B进程%2B_稳定/note/Project Report.pdf)
+本文档的完整最新pdf版[JumbuckNucleus/Project Report.pdf at ch5虚拟内存+进程+_稳定 · 2catycm/JumbuckNucleus (github.com)](https://github.com/2catycm/JumbuckNucleus/blob/ch5虚拟内存%2B进程%2B_稳定/note/Project Report.pdf)（时间太紧张了，写文档的时候还要复习AI，写一般git命令搞错了用分支把文档覆盖为旧版，如果你看到后面有残缺的部分比较感兴趣，请看这个链接的版本）。
 
 仓库地址：[2catycm/JumbuckNucleus at ch5虚拟内存+进程+_稳定 (github.com)](https://github.com/2catycm/JumbuckNucleus/tree/ch5虚拟内存+进程+_稳定)
 
@@ -235,7 +235,7 @@ Rust 和C++语言一样，提供了“零开销”的抽象。我们用Rust写�
 
 ### 16KiB下的QEMU
 
-我们修改了QEMU中关于分页的部分, 为了简单起见，shi
+我们修改了QEMU中关于分页的部分, 为了简单起见，使用了9-9-9-14方案
 
 ```c
 // cpu_bits.h
@@ -297,11 +297,15 @@ fn panic_handler(info: &core::panic::PanicInfo) -> ! {
 
 - 方便debug调试，我们需要一个强大的log输出机制。
 
+  这也可以通过拔插rust的语言特性实现，通过实现Log接口，就可以使用log宏了
   
+  [JumbuckNucleus/sheep_logger.rs at ch5虚拟内存+进程+_稳定 · 2catycm/JumbuckNucleus (github.com)](https://github.com/2catycm/JumbuckNucleus/blob/ch5虚拟内存%2B进程%2B_稳定/os/src/sheep_logger.rs)
 
 #### 实现条件编译（Makefile+rust feature）
 
 - 允许快速选择4KiB还是16KiB
+
+  我们可以是rust cargo的
 
 #### Qemu远程gdb
 
@@ -311,13 +315,188 @@ Qemu支持
 
 ### 地址转换模式
 
+在lab代码中，我们可以注意到内核转换存在一个过渡期, 通过entry.asm中写入页表的方式，把一个魔法地址"0xFF..F80200000"吉页转换为物理地址，从而开启虚拟内存。
+
+在rCore中，并不是这样做的。首先，rCore没有在汇编中写页表，而是通过地址空间的合理rust抽象，在内核代码中写入页表；其次rCore中避免了魔法地址，直接使用恒等映射。
+
+我们可以看到这样的代码：
+
+```rust
+// KERNEL SPACE 这个 memory set的初始化函数 的一部分
+println!("mapping .bss section");
+        memory_set.push(
+            MapArea::new(
+                (sbss_with_stack as usize).into(),
+                (ebss as usize).into(),
+                MapType::Identical,
+                MapPermission::R | MapPermission::W,
+            ),
+            None,
+        );
+```
+
+这样做的好处可以参考[notebook/doc.md at main · YdrMaster/notebook (github.com)](https://github.com/YdrMaster/notebook/blob/main/zCore/20220418-difference-of-memory-between-zcore-and-rcore-v3/doc.md)
+
 ### 物理内存分配算法（堆与物理页帧）
+
+在rCore和xv6中，均认为内核中分配物理页面就是一页一页的分配，没有连续的需求，所以没有写物理页帧连续页面分配的算法。**因此，我们需要用rust自己实现这些算法。**
+
+在Project要求中，"实现两种物理内存分配算法并完成相关测试(best fit, first fit, worst fit，next fit或者其他分配算 法)。" "比如实现比较复杂的Buddy System分配算法"。 实际上他们都属于连续资源的分配算法，解决的是碎片问题。在我们Project中，有三个地方需要用到连续资源的分配
+
+- 操作系统的启动堆内存管理，以便操作系统使用平衡二叉树、向量等动态数据结构。
+- 操作系统管理物理页帧，以分配给用户进程
+- 用户进程在虚拟的地址空间连续分配内存，以使用动态数据结构。
+
+为了屏蔽掉这些使用场景的差异，我们可以设计一个rust接口：
+
+```rust
+trait ContinuousStorageAllocationAlgorithm {
+    fn new() -> Self;
+    ///
+    ///
+    /// # 参数
+    ///
+    /// * `start`: 注意是Inclusive的
+    /// * `end`: 注意是Exclusive的. 左闭右开。
+    ///
+    /// returns: ()
+    fn init(&mut self, start: usize, end: usize);
+    fn alloc(&mut self, count: usize) -> Option<usize>;
+    fn dealloc(&mut self, frame: usize, count: usize);
+    fn get_remain_frame_cnt(&mut self) -> usize;
+}
+```
+
+具体对于物理页帧的分配，则在写一个接口和struct与之对应
+
+```rust
+/// 物理页帧的分配器接口。
+trait FrameAllocator {
+    fn new() -> Self;
+    fn init(&mut self, l: PhysPageNum, r: PhysPageNum);
+    fn alloc(&mut self, count: usize) -> Option<PhysPageNum>;
+    fn dealloc(&mut self, ppn: PhysPageNum, count: usize);
+    fn get_remain_frame_cnt(&mut self) -> usize;
+}
+```
+
+
 
 #### best\first\worst
 
+这几个算法实现比较简单，我们以best_fit为例
+
+```rust
+use super::ContinuousStorageAllocationAlgorithm;
+// use alloc::collections::linked_list::LinkedList;
+use alloc::collections::vec_deque::VecDeque;
+
+pub struct BestFitAllocator {
+    captains: VecDeque<(usize, usize)>,
+    // 一些统计数据
+    allocated: usize,
+    total: usize,
+}
+
+impl ContinuousStorageAllocationAlgorithm for BestFitAllocator {
+    fn new() -> Self {
+        Self {
+            captains: VecDeque::new(),
+            allocated: 0,
+            total: 0,
+        }
+    }
+
+    fn init(&mut self, start: usize, end: usize) {
+        assert!(start <= end);
+        self.total = end - start;
+        self.captains = VecDeque::with_capacity(self.total);
+        self.captains.push_back((start, self.total));
+        log::info!("最佳匹配分配器启动成功！当前空闲物理页帧的数量为{}", self.get_remain_frame_cnt())
+    }
+
+    fn alloc(&mut self, count: usize) -> Option<usize> {
+        let mut min_diff = usize::MAX;
+        let mut arg_min:Option<usize> = None;
+        for i in 0..self.captains.len(){
+            let (allocated_frame, troop_size) = self.captains[i];
+            if troop_size > count{
+                log::debug!("{:?} 队长是申请{}空间的一个选择", self.captains[i], count);
+                let diff = troop_size-count;
+                if diff<min_diff{
+                    min_diff = diff;
+                    arg_min = Some(i);
+                }
+            }else if troop_size==count{
+                //提前结束，这就是最好的。
+                log::debug!("{:?} 队长接受了 {} 的请求", self.captains[i], count);
+                self.captains.remove(i);
+                log::debug!("队伍消失");
+                return Some(allocated_frame);
+            }
+        }
+        if let Some(arg_min) = arg_min{
+            log::debug!("{:?} 队长是申请{}空间的 best fit 选择", self.captains[arg_min], count);
+            let allocated_frame = self.captains[arg_min].0;
+            self.captains[arg_min].0 += count;
+            self.captains[arg_min].1 -= count;
+            log::debug!("队伍状态变更为{:?}", self.captains[arg_min]);
+            return Some(allocated_frame);
+        }else {
+            log::warn!("无法找到合适的连续空间！");
+            None
+        }
+    }
+
+    fn dealloc(&mut self, frame: usize, count: usize) {
+
+        for i in 0..self.captains.len(){
+            let (start, troop_size) = self.captains[i];
+            assert_ne!(start, frame);
+            if start>frame{ //前面一直都是比frame小的。现在比它大，所以插在前面。
+                log::debug!("{:?} 队长的左边可以释放({}, {})", self.captains[i], frame, count);
+                assert!(frame+count<=start); //不应当overlap
+                //试图合并
+                //可以不合并，但是算法就不完备。
+                if frame+count==start{
+                    self.captains[i].0 = frame;
+                    self.captains[i].1 +=count;
+                    log::debug!("可以合并， 队伍状态变更为{:?}", self.captains[i]);
+                }else {
+                    self.captains.insert(i, (frame, count)); //新的队长。
+                    log::debug!("右边不可以合并， 已经插入{:?}", self.captains[i]);
+                }
+                //顺便要看看左边能不能合并，因为这个情况之前没有考虑。
+                if i!=0 {
+                    let (start, troop_size) = self.captains[i-1];
+                    if start+troop_size==frame {
+                        self.captains[i].0 = start;
+                        self.captains[i].1 += troop_size;
+                        self.captains.remove(i-1);
+                        log::debug!("左边可以合并，删除左边并且队伍状态变更为{:?}", self.captains[i-1]);
+                    }
+                }
+                return;
+            }else{
+                assert!(start+troop_size<=frame); //不应当overlap
+            }
+        }
+        //都比frame小，插入到最后。
+        log::debug!("在所有队长之后，释放并产生新的队长({}, {})", frame, count);
+        self.captains.push_back((frame, count));
+    }
+
+    fn get_remain_frame_cnt(&mut self) -> usize {
+        self.total - self.allocated
+    }
+}
+```
+
+
+
 #### buddy system
 
-buddy system我们参考了[buddy_system_allocator - Rust (docs.rs)](https://docs.rs/buddy_system_allocator/0.8.0/buddy_system_allocator/index.html)的实现，并没有做太多修改，只是
+buddy system我们参考了[buddy_system_allocator - Rust (docs.rs)](https://docs.rs/buddy_system_allocator/0.8.0/buddy_system_allocator/index.html)的实现，并没有做太多修改，只是让这个实现符合我们的`ContinuousStorageAllocationAlgorithm`接口。
 
 ```rust
 use super::ContinuousStorageAllocationAlgorithm;
@@ -432,16 +611,6 @@ fn prev_power_of_two(num: usize) -> usize {
 }
 ```
 
-
-
-## 实现多道程序、分时多任务与进程。
-
-### fork() exec() 系统调用, 用户shell
-
-### initproc 进程
-
-### elf 加载
-
 ## 16KiB 相比 4KiB 性能测试
 
 下面我们实际通过实验测试16KiB操作系统是否实际比4KiB的性能更好。
@@ -494,13 +663,35 @@ pub fn main() -> i32 {
 
 ### 4KiB
 
-我们使用
+我们使用未修改的4KiB rCore进行测试(仍然需要做一些堆大小的修改)，加入同样的bench_pgfault程序
 
 ![Snipaste_2022-08-01_01-59-18](Project Report.assets\Snipaste_2022-08-01_01-59-18.png)
 
+似乎初始化更快。接下来运行三次
+
+![Snipaste_2022-08-01_01-59-45](Project Report.assets\Snipaste_2022-08-01_01-59-45.png)
+
+可以看出，16KiB的操作系统比4KiB的快10ms左右，提速约13%。
+
+## 总结与展望
+
+通过本次Project，我们
+
+- 深入学习了rCore关于虚拟内存和进程管理的实现，受益匪浅
+  - 比较了不同版本rCore和uCore实现的不同。比如内核过渡虚拟地址的不同。
+  - 理解了操作系统的运行过程。
+- 了解到rust语言，初步学习其使用。
+  - 了解了rust语言的基本语法和内存管理机制
+  - 使用rust语言复现了Lab和Assignment中shell, first fit, rr等算法。
+- 练习了makefile的使用
+
+这都加深了我们对操作系统理论课中学习到的知识的理解。然而，由于时间不够以及实现细节的复杂，还有一下几点我们做得不足
+
+- qemu修改比较简单，没有设计一个专门的MODE，而是沿用Sv39。可以使用更加合理的11-11-11-14设计。
+- rCore代码进程管理部分阅读比较粗浅，虚拟内存阅读地比较多，不过仍有部分细节和设计没有完全理解。
+- rCore中在ch5分支没有实现页面置换、LRU等内容，这就让我们无法对16KiB系统的page fault数量进行统计，无法进一步测试16KiB系统的性能优势。
 
 
-![Snipaste_2022-08-01_01-59-45](\\wsl$\Ubuntu-20.04\home\yecanming\workspace\OS\JumbuckNucleus\note\Project Report.assets\Snipaste_2022-08-01_01-59-45.png)
 
 # 参考文献
 
