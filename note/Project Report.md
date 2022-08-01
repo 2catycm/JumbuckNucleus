@@ -17,11 +17,11 @@
 
 ### git 仓库管理
 
-本文档的完整最新pdf版[JumbuckNucleus/Project Report.pdf at ch5虚拟内存+进程+ · 2catycm/JumbuckNucleus (github.com)](https://github.com/2catycm/JumbuckNucleus/blob/ch5虚拟内存%2B进程%2B/note/Project Report.pdf)
+本文档的完整最新pdf版[JumbuckNucleus/Project Report.pdf at ch5虚拟内存+进程+_稳定 · 2catycm/JumbuckNucleus (github.com)](https://github.com/2catycm/JumbuckNucleus/blob/ch5虚拟内存%2B进程%2B_稳定/note/Project Report.pdf)
 
-仓库地址：[2catycm/JumbuckNucleus: Jumbuck Nucleus is an operating system based on RISCV arch, developed via Rust Programming language, which conforms to PN4(Page tables are not 4KiB) specification. 绵羊核心是一款基于RISCV架构与Rust语言开发的PN4(非四页相结构)操作系统。 (github.com)](https://github.com/2catycm/JumbuckNucleus)
+仓库地址：[2catycm/JumbuckNucleus at ch5虚拟内存+进程+_稳定 (github.com)](https://github.com/2catycm/JumbuckNucleus/tree/ch5虚拟内存+进程+_稳定)
 
-持续集成测试：[2catycm/JumbuckNucleus](https://github.com/2catycm/JumbuckNucleus/actions/runs/2770332135)
+持续集成测试：[feat(os): 最新版本 · 2catycm/JumbuckNucleus@896c3a7 (github.com)](https://github.com/2catycm/JumbuckNucleus/actions/runs/2775806152)
 
 ### 为什么页面大小选择为16KiB，而不是传统甚至是默认的4KiB？
 
